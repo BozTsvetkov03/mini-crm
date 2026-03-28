@@ -1,18 +1,11 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { getCustomers, deleteCustomer, updateCustomer } from "./api/customersApi";
-import { getApiErrorMessage } from "./api/apiError";
-import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "./api/tasksApi";
-import Customers from './components/Customers'
-import Tasks from "./components/Tasks";
-import { Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import DashboardPage from "./pages/Dashboard";
-import PublicLayout from "./components/PublicLayout";
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
+import { getCustomers, deleteCustomer, updateCustomer } from "../api/customersApi";
+import { getApiErrorMessage } from "../api/apiError";
+import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "../api/tasksApi";
+import Customers from "../components/Customers";
+import Tasks from "../components/Tasks";
 
-
-function App() {
+export default function DashboardPage() {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -27,20 +20,18 @@ function App() {
 
   const crmRef = useRef(null);
 
-
-  
   const loadCustomers = async () => {
     try {
       setCustomersLoading(true);
       setCustomersError("");
-      const data = await getCustomers()
+      const data = await getCustomers();
       setCustomers(data);
     } catch (error) {
       setCustomersError(getApiErrorMessage(error));
     } finally {
       setCustomersLoading(false);
     }
-  }
+  };
 
   const loadTasks = async (customerId) => {
     try {
@@ -53,24 +44,24 @@ function App() {
     } finally {
       setTasksLoading(false);
     }
-  }
+  };
 
   const handleSelectCustomer = (customer) => {
-  if (selectedCustomer?.id === customer.id) {
-    setSelectedCustomer(null);
-  } else {
-    setSelectedCustomer(customer);
-  }
-};
+    if (selectedCustomer?.id === customer.id) {
+      setSelectedCustomer(null);
+    } else {
+      setSelectedCustomer(customer);
+    }
+  };
 
   const handleCustomerCreated = async () => {
     await loadCustomers();
-  }
+  };
 
   const handleTaskCreated = async () => {
     if (!selectedCustomer) return;
     await loadTasks(selectedCustomer.id);
-  }
+  };
 
   const handleTaskCompleted = async (taskId) => {
     try {
@@ -81,12 +72,11 @@ function App() {
     } catch (error) {
       setTasksError(getApiErrorMessage(error));
     }
-  }
+  };
 
   const handleTaskDeleted = async (taskId) => {
     try {
       await deleteTask(taskId);
-
       if (selectedCustomer) {
         await loadTasks(selectedCustomer.id);
       }
@@ -96,20 +86,17 @@ function App() {
   };
 
   const handleTaskUpdated = async (taskId, taskData) => {
-  try {
-    await updateTask(taskId, taskData);
-
-    if (selectedCustomer) {
-
-      const refreshedTasks = await getTasksByCustomerId(selectedCustomer.id);
-
-      setTasks(refreshedTasks);
+    try {
+      await updateTask(taskId, taskData);
+      if (selectedCustomer) {
+        const refreshedTasks = await getTasksByCustomerId(selectedCustomer.id);
+        setTasks(refreshedTasks);
+      }
+    } catch (error) {
+      console.error("Failed to update task:", error);
+      throw error;
     }
-  } catch (error) {
-    console.error("Failed to update task:", error);
-    throw error;
-  }
-}
+  };
 
   const handleCustomerDeleted = async (customerId) => {
     try {
@@ -135,11 +122,10 @@ function App() {
       if (selectedCustomer?.id === customerId) {
         setSelectedCustomer(updatedCustomer);
       }
-
     } catch (error) {
       setCustomersError(getApiErrorMessage(error));
     }
-  }
+  };
 
   const filteredCustomers = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -151,8 +137,8 @@ function App() {
         customer.name.toLowerCase().includes(term) ||
         customer.email.toLowerCase().includes(term) ||
         customer.country.toLowerCase().includes(term)
-      )
-    })
+      );
+    });
   }, [customers, searchTerm]);
 
   useEffect(() => {
@@ -162,42 +148,59 @@ function App() {
   useEffect(() => {
     if (!selectedCustomer) {
       setTasks([]);
-      return
+      return;
     }
 
     loadTasks(selectedCustomer.id);
   }, [selectedCustomer]);
 
   useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (
-      crmRef.current &&
-      !crmRef.current.contains(event.target)
-    ) {
-      setSelectedCustomer(null);
-    }
-  };
+    const handleClickOutside = (event) => {
+      if (crmRef.current && !crmRef.current.contains(event.target)) {
+        setSelectedCustomer(null);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <Routes>
-      <Route element={<PublicLayout/>}>
-            <Route path="/" element={<HomePage/>} />
-            <Route path="/register" element={<RegisterPage/>} />
-            <Route path="/login" element={<LoginPage/>} />
-            <Route path="/app" element={<DashboardPage/>} />
-      </Route>
+    <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-150">
+      <div className="w-[92%] lg:w-[80%] mx-auto pt-16 pb-16">
+        <div
+          ref={crmRef}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start"
+        >
+          <Customers
+            customers={filteredCustomers}
+            selectedCustomer={selectedCustomer}
+            onSelectCustomer={handleSelectCustomer}
+            loading={customersLoading}
+            error={customersError}
+            onCustomerCreated={handleCustomerCreated}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            totalCustomersCount={customers.length}
+            onCustomerDeleted={handleCustomerDeleted}
+            onCustomerUpdated={handleCustomerUpdated}
+          />
 
-    </Routes>
-
-
-  )
+          <Tasks
+            selectedCustomer={selectedCustomer}
+            tasks={tasks}
+            loading={tasksLoading}
+            error={tasksError}
+            onCompleteTask={handleTaskCompleted}
+            onTaskCreated={handleTaskCreated}
+            onTaskDeleted={handleTaskDeleted}
+            onTaskUpdated={handleTaskUpdated}
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
-
-export default App;

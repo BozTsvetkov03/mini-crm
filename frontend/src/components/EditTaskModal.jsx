@@ -84,6 +84,8 @@ function EditTaskModal({ task, open, onClose, onSave }) {
               type="datetime-local"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              max="9999-12-31T23:59"
+              min="2026-01-01T00:00"
               className="w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
             />
           </div>

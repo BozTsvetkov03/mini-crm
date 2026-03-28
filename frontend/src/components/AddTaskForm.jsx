@@ -72,6 +72,8 @@ function AddTaskForm({ selectedCustomer, onTaskCreated }) {
               type="datetime-local"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              max="9999-12-31T23:59"
+              min="2026-01-01T00:00"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />
           </div>
