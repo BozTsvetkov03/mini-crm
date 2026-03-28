@@ -7,6 +7,7 @@ function AddCustomerForm({ onCustomerCreated }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
+  const [company, setCompany] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,6 +37,7 @@ function AddCustomerForm({ onCustomerCreated }) {
         name: name.trim(),
         email: email.trim(),
         country: country,
+        company: company.trim() || null,
       };
 
       console.log("customer payload:", payload);
@@ -45,6 +47,7 @@ function AddCustomerForm({ onCustomerCreated }) {
       setName("");
       setEmail("");
       setCountry("");
+      setCompany("");
 
       await onCustomerCreated();
     } catch (err) {
@@ -63,13 +66,36 @@ function AddCustomerForm({ onCustomerCreated }) {
           <label className="mb-2 block text-sm font-medium text-gray-700">
             Name
           </label>
+
           <input
             type="text"
             value={name}
+            maxLength={50}
             onChange={(e) => setName(e.target.value)}
             placeholder="Terry Davies"
             className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
+
+          <div className="mt-1 text-right text-xs text-gray-500">
+            {name.length}/50
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Company <span className="text-gray-400">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            maxLength={50}
+            placeholder="Company name"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+          />
+          <div className="mt-1 text-right text-xs text-gray-500">
+            {company.length}/50
+          </div>
         </div>
 
         <div>
@@ -79,10 +105,14 @@ function AddCustomerForm({ onCustomerCreated }) {
           <input
             type="email"
             value={email}
+            maxLength={50}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="terry@temple.os"
             className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
+          <div className="mt-1 text-right text-xs text-gray-500">
+            {email.length}/50
+          </div>
         </div>
         <label className="mb-2 block text-sm font-medium text-gray-700">
                 Country

@@ -8,6 +8,7 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
+  const [company, setCompany] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,6 +18,7 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
     setName(customer.name || "");
     setEmail(customer.email || "");
     setCountry(customer.country || "");
+    setCompany(customer.company || "");
     setError("");
   }, [customer]);
 
@@ -35,7 +37,8 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
       await onSave(customer.id, {
         name: name.trim(),
         email: email.trim() || null,
-        country: country.trim() || null
+        country: country.trim() || null,
+        company: company.trim() || null
       });
 
       onClose();
@@ -73,9 +76,13 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              maxLength={50}
               className="w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
               placeholder="Enter customer name"
             />
+            <div className="mt-1 text-right text-xs text-gray-500">
+            {name.length}/50
+          </div>
           </div>
 
           <div>
@@ -86,9 +93,13 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              maxLength={50}
               className="w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
               placeholder="Enter email"
             />
+            <div className="mt-1 text-right text-xs text-gray-500">
+            {email.length}/50
+          </div>
           </div>
 
             <div>
@@ -98,6 +109,23 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
               </label>
               <CountrySelect value={country} onChange={setCountry}/>
             </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Company <span className="text-gray-400">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              maxLength={50}
+              className="w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+              placeholder="Company name"
+            />
+            <div className="mt-1 text-right text-xs text-gray-500">
+            {company.length}/50
+          </div>
           </div>
 
           {error && (

@@ -64,9 +64,13 @@ function AddTaskForm({ selectedCustomer, onTaskCreated }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              maxLength={100}
               placeholder="Follow up with customer"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />
+            <div className="mt-1 text-right text-xs text-gray-500">
+            {title.length}/100
+          </div>
           </div>
 
           <div>

@@ -50,7 +50,7 @@ function Customers({
         </h2>
 
         <p className="mt-1 text-sm text-gray-500">
-          Search by name, email, or country.
+          Search by name, email, country, or company.
         </p>
       </div>
 
@@ -112,6 +112,11 @@ function Customers({
                   <p className="mt-1 text-sm text-gray-500">
                     {customer.country}
                   </p>
+                  {customer.company && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {customer.company}
+                    </p>
+                  )}
 
                   <div className="mt-3">
                     <button
@@ -144,6 +149,7 @@ function Customers({
                   <th className="px-4 py-3 text-left">Name</th>
                   <th className="px-4 py-3 text-left">Email</th>
                   <th className="px-4 py-3 text-left">Country</th>
+                  <th className="px-4 py-3 text-left">Company</th>
                   <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
@@ -163,6 +169,7 @@ function Customers({
                       <td className="px-4 py-3">{customer.name}</td>
                       <td className="break-all px-4 py-3">{customer.email}</td>
                       <td className="px-4 py-3">{customer.country}</td>
+                      <td className="px-4 py-3 text-gray-500">{customer.company || "—"}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={(e) => {

@@ -65,6 +65,7 @@ public class CustomersController : ControllerBase
                 Name = dto.Name.Trim(),
                 Email = dto.Email.Trim(),
                 Country = dto.Country.Trim(),
+                Company = dto.Company?.Trim(),
                 UserId = Guid.Parse("11111111-1111-1111-1111-111111111111")
             };
 
@@ -94,6 +95,7 @@ public class CustomersController : ControllerBase
         customer.Name = dto.Name.Trim();
         customer.Email = dto.Email.Trim();
         customer.Country = dto.Country.Trim();
+        customer.Company = dto.Company?.Trim();
 
         await _db.SaveChangesAsync();
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 
-
 function EditTaskModal({ task, open, onClose, onSave }) {
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -71,9 +70,13 @@ function EditTaskModal({ task, open, onClose, onSave }) {
             <input
               type="text"
               value={title}
+              maxLength={100}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
             />
+            <div className="mt-1 text-right text-xs text-gray-500">
+            {title.length}/100
+          </div>
           </div>
 
           <div>
@@ -117,7 +120,7 @@ function EditTaskModal({ task, open, onClose, onSave }) {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
+              className="rounded-xl bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Saving..." : "Save"}
             </button>

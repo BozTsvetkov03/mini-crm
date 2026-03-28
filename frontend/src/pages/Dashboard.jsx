@@ -136,7 +136,8 @@ export default function DashboardPage() {
       return (
         customer.name.toLowerCase().includes(term) ||
         customer.email.toLowerCase().includes(term) ||
-        customer.country.toLowerCase().includes(term)
+        customer.country.toLowerCase().includes(term) ||
+        (customer.company && customer.company.toLowerCase().includes(term))
       );
     });
   }, [customers, searchTerm]);
