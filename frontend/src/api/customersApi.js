@@ -14,3 +14,8 @@ export async function deleteCustomer(customerId) {
   const response = await http.delete(`/customers/${customerId}`);
   return response.data;
 }
+
+export async function updateCustomer(customerId, customerData) {
+    const response = await http.put(`/customers/${customerId}`, customerData);
+    return response.data;
+}

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -39,6 +40,25 @@ public class TasksController : ControllerBase
         await _db.SaveChangesAsync();
 
         return NoContent();
-}
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateTaskDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return BadRequest("Title is required");
+        
+        var task = await _db.Tasks.FindAsync(id);
+        if (task == null)
+            return NotFound("Task not found");
+
+        task.Title = dto.Title;
+        task.DueDate = dto.DueDate;
+        task.IsDone = dto.IsDone;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(task);
+    }
 }
 

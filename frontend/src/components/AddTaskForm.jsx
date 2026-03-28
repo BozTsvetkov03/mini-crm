@@ -24,7 +24,7 @@ function AddTaskForm({ selectedCustomer, onTaskCreated }) {
 
       const payload = {
         title: title.trim(),
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        dueDate: dueDate || null,
       };
       console.log("task payload:", payload);
       

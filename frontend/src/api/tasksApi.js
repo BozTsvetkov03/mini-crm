@@ -19,3 +19,8 @@ export async function deleteTask(taskId) {
   const response = await http.delete(`/tasks/${taskId}`);
   return response.data;
 }
+
+export async function updateTask(taskId, taskData) {
+    const response = await http.put(`/tasks/${taskId}`, taskData);
+    return response.data;
+}

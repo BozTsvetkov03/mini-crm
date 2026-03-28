@@ -1,5 +1,8 @@
+import { useState } from "react";
+import { Check, Pencil, Trash2 } from "lucide-react";
 import AddTaskForm from "./AddTaskForm";
 import LoadingSpinner from "./LoadingSpinner";
+import EditTaskModal from "./EditTaskModal";
 
 function Tasks({
   selectedCustomer,
@@ -8,8 +11,11 @@ function Tasks({
   error,
   onCompleteTask,
   onTaskCreated,
-  onTaskDeleted
+  onTaskDeleted,
+  onTaskUpdated
 }) {
+  const [editingTask, setEditingTask] = useState(null);
+
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit">
       <h2 className="text-xl font-semibold mb-6 text-gray-900">
@@ -63,45 +69,59 @@ function Tasks({
                     : "No due date"}
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-2">
-              {task.isDone && (
-                <span className="text-sm font-medium text-green-600">
-                  Completed
-                </span>
-              )}
+                {task.isDone && (
+                  <span className="text-sm font-medium text-green-600">
+                    Completed
+                  </span>
+                )}
 
-              {!task.isDone && (
+                {!task.isDone && (
+                  <button
+                    onClick={() => onCompleteTask(task.id)}
+                    className="rounded-xl p-2 text-green-600 transition hover:bg-green-50 hover:cursor-pointer"
+                    aria-label={`Complete ${task.title}`}
+                    title="Complete"
+                  >
+                    <Check size={18} />
+                  </button>
+                )}
+
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCompleteTask(task.id);
-                  }}
-                  className="rounded-xl bg-green-500 px-4 py-2 text-white transition hover:bg-green-600"
+                  onClick={() => setEditingTask(task)}
+                  className="rounded-xl p-2 text-blue-600 transition hover:bg-blue-50 hover:cursor-pointer"
+                  aria-label={`Edit ${task.title}`}
+                  title="Edit"
                 >
-                  Complete
+                  <Pencil size={18} />
                 </button>
-              )}
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const confirmed = window.confirm("Delete this task?");
-                  if (confirmed) {
-                    onTaskDeleted(task.id);
-                  }
-                }}
-                className="rounded-xl bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
-              >
-                Delete
-              </button>
-            </div>
+                <button
+                  onClick={() => {
+                    const confirmed = window.confirm("Delete this task?");
+                    if (confirmed) onTaskDeleted(task.id);
+                  }}
+                  className="rounded-xl p-2 text-red-600 transition hover:bg-red-50 hover:cursor-pointer"
+                  aria-label={`Delete ${task.title}`}
+                  title="Delete"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </li>
           ))}
         </ul>
       )}
+
+      <EditTaskModal
+        task={editingTask}
+        open={!!editingTask}
+        onClose={() => setEditingTask(null)}
+        onSave={onTaskUpdated}
+      />
     </div>
   );
-};
+}
 
 export default Tasks;

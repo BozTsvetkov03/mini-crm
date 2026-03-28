@@ -1,5 +1,8 @@
 import AddCustomerForm from "./AddCustomerForm";
 import LoadingSpinner from "./LoadingSpinner";
+import { useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
+import EditCustomerModal from "./EditCustomerModal";
 
 function Customers({
   customers,
@@ -12,7 +15,9 @@ function Customers({
   onSearchChange,
   totalCustomersCount,
   onCustomerDeleted,
+  onCustomerUpdated
 }) {
+  const [editingCustomer, setEditingCustomer] = useState(null);
   const hasCustomers = customers.length > 0;
   const showEmptyState = !loading && !error && !hasCustomers;
   const showCustomers = !loading && !error && hasCustomers;
@@ -110,10 +115,21 @@ function Customers({
 
                   <div className="mt-3">
                     <button
-                      onClick={(e) => handleDeleteCustomer(e, customer)}
-                      className="rounded-lg bg-red-500 px-3 py-2 text-sm text-white transition hover:bg-red-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingCustomer(customer);
+                      }}
+                      className="rounded-xl p-2 text-blue-600 transition hover:bg-blue-50 hover:cursor-pointer"
+                      aria-label={`Edit ${customer.name}`}
+                      title="Edit"
                     >
-                      Delete
+                      <Pencil size={18} />
+                    </button>
+                    <button
+                          onClick={(e) => handleDeleteCustomer(e, customer)}
+                          className="rounded-xl p-2 text-red-600 transition hover:bg-red-200 hover:cursor-pointer"
+                        >
+                          <Trash2 size={18}/>
                     </button>
                   </div>
                 </div>
@@ -149,10 +165,21 @@ function Customers({
                       <td className="px-4 py-3">{customer.country}</td>
                       <td className="px-4 py-3">
                         <button
-                          onClick={(e) => handleDeleteCustomer(e, customer)}
-                          className="rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition hover:bg-red-400 hover:cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCustomer(customer);
+                          }}
+                          className="rounded-xl p-2 text-blue-600 transition hover:bg-blue-50 hover:cursor-pointer"
+                          aria-label={`Edit ${customer.name}`}
+                          title="Edit"
                         >
-                          Delete
+                      <Pencil size={18} />
+                    </button>
+                        <button
+                          onClick={(e) => handleDeleteCustomer(e, customer)}
+                          className="rounded-xl p-2 text-red-600 transition hover:bg-red-50 hover:cursor-pointer"
+                        >
+                          <Trash2 size={18}/>
                         </button>
                       </td>
                     </tr>
@@ -163,6 +190,13 @@ function Customers({
           </div>
         </>
       )}
+
+      <EditCustomerModal
+        customer={editingCustomer}
+        open={!!editingCustomer}
+        onClose={() => setEditingCustomer(null)}
+        onSave={onCustomerUpdated}
+      />
     </div>
   );
 }

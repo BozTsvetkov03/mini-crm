@@ -107,4 +107,22 @@ public class CustomersController : ControllerBase
 
         return NoContent();
 }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateCustomerDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return BadRequest("Please enter a valid name");
+
+        var customer = await _db.Customers.FindAsync(id);
+        if (customer == null)
+            return NotFound("Customer not found");
+
+        customer.Name = dto.Name;
+        customer.Email = dto.Email;
+        customer.Country = dto.Country;
+
+        await _db.SaveChangesAsync();
+        
+        return Ok(customer);
+    }
 }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createCustomer } from "../api/customersApi";
 import { getApiErrorMessage } from "../api/apiError";
+import CountrySelect from "./countrySelect";
 
 function AddCustomerForm({ onCustomerCreated }) {
   const [name, setName] = useState("");
@@ -22,7 +23,7 @@ function AddCustomerForm({ onCustomerCreated }) {
       return;
     }
 
-    if (!country.trim()) {
+    if (!country) {
       setError("Customer country is required.");
       return;
     }
@@ -34,8 +35,9 @@ function AddCustomerForm({ onCustomerCreated }) {
       const payload = {
         name: name.trim(),
         email: email.trim(),
-        country: country.trim(),
+        country: country,
       };
+
       console.log("customer payload:", payload);
 
       await createCustomer(payload);
@@ -82,19 +84,10 @@ function AddCustomerForm({ onCustomerCreated }) {
             className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
         </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Country
-          </label>
-          <input
-            type="text"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            placeholder="Bulgaria"
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-          />
-        </div>
+        <label className="mb-2 block text-sm font-medium text-gray-700">
+                Country
+        </label>
+        <CountrySelect value={country} onChange={setCountry} className="focus:border-emerald-400"/>
 
         {error && (
           <p className="text-sm font-medium text-red-600">{error}</p>

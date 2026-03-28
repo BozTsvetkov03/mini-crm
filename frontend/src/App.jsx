@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { getCustomers, deleteCustomer } from "./api/customersApi";
+import { getCustomers, deleteCustomer, updateCustomer } from "./api/customersApi";
 import { getApiErrorMessage } from "./api/apiError";
-import { completeTask, getTasksByCustomerId, deleteTask } from "./api/tasksApi";
+import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "./api/tasksApi";
 import Customers from './components/Customers'
 import Tasks from "./components/Tasks";
 
@@ -89,6 +89,22 @@ function App() {
     }
   };
 
+  const handleTaskUpdated = async (taskId, taskData) => {
+  try {
+    await updateTask(taskId, taskData);
+
+    if (selectedCustomer) {
+
+      const refreshedTasks = await getTasksByCustomerId(selectedCustomer.id);
+
+      setTasks(refreshedTasks);
+    }
+  } catch (error) {
+    console.error("Failed to update task:", error);
+    throw error;
+  }
+}
+
   const handleCustomerDeleted = async (customerId) => {
     try {
       await deleteCustomer(customerId);
@@ -103,6 +119,21 @@ function App() {
       setCustomersError(getApiErrorMessage(error));
     }
   };
+
+  const handleCustomerUpdated = async (customerId, customerData) => {
+    try {
+      const updatedCustomer = await updateCustomer(customerId, customerData);
+
+      await loadCustomers();
+
+      if (selectedCustomer?.id === customerId) {
+        setSelectedCustomer(updatedCustomer);
+      }
+
+    } catch (error) {
+      setCustomersError(getApiErrorMessage(error));
+    }
+  }
 
   const filteredCustomers = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -171,6 +202,7 @@ function App() {
           onSearchChange={setSearchTerm}
           totalCustomersCount={customers.length}
           onCustomerDeleted={handleCustomerDeleted}
+          onCustomerUpdated={handleCustomerUpdated}
         />
 
         <Tasks
@@ -181,6 +213,7 @@ function App() {
           onCompleteTask={handleTaskCompleted}
           onTaskCreated={handleTaskCreated}
           onTaskDeleted={handleTaskDeleted}
+          onTaskUpdated={handleTaskUpdated}
         />
       </div>
     </div>
