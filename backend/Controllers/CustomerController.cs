@@ -18,62 +18,136 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
-        var customers = await _db.Customers.ToListAsync();
+        var customers = await _db.Customers
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+
         return Ok(customers);
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<Customer>> GetCustomerById(Guid id)
+    {
+        var customer = await _db.Customers
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (customer == null)
+            return NotFound("Customer not found");
+
+        return Ok(customer);
+    }
+
     [HttpPost]
-    public async Task<IActionResult> Create(CreateCustomerDto dto)
+    public async Task<ActionResult<Customer>> CreateCustomer(CreateCustomerDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
-        {
             return BadRequest("Name is required");
-        }
 
-        var customer = new Customer
-        {
-            Name = dto.Name,
-            Email = dto.Email,
-            Country = dto.Country
-        };
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            return BadRequest("Email is required");
+
+        if (string.IsNullOrWhiteSpace(dto.Country))
+            return BadRequest("Country is required");
+
+        // var customer = new Customer
+        // {
+        //     Id = Guid.NewGuid(),
+        //     Name = dto.Name.Trim(),
+        //     Email = dto.Email.Trim(),
+        //     Country = dto.Country.Trim(),
+        //     UserId = Guid.Empty // temporary until auth is implemented
+        // };
+            var customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                Name = dto.Name.Trim(),
+                Email = dto.Email.Trim(),
+                Country = dto.Country.Trim(),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111")
+            };
 
         _db.Customers.Add(customer);
+        await _db.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<Customer>> UpdateCustomer(Guid id, UpdateCustomerDto dto)
+    {
+        var customer = await _db.Customers.FindAsync(id);
+
+        if (customer == null)
+            return NotFound("Customer not found");
+
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return BadRequest("Name is required");
+
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            return BadRequest("Email is required");
+
+        if (string.IsNullOrWhiteSpace(dto.Country))
+            return BadRequest("Country is required");
+
+        customer.Name = dto.Name.Trim();
+        customer.Email = dto.Email.Trim();
+        customer.Country = dto.Country.Trim();
+
         await _db.SaveChangesAsync();
 
         return Ok(customer);
     }
 
-    [HttpGet("{id}/tasks")]
-    public async Task<IActionResult> GetTasks(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteCustomer(Guid id)
     {
-        var customerExists = await _db.Customers.AnyAsync(c => c.Id == id);
-            if (!customerExists) 
-                return NotFound();
-            
-            var tasks = await _db.Tasks
-                .Where(t => t.CustomerId == id)
-                .OrderBy(t => t.IsDone)
-                .ThenBy(t => t.DueDate)
-                .ToListAsync();
+        var customer = await _db.Customers.FindAsync(id);
 
-            return Ok(tasks);
+        if (customer == null)
+            return NotFound("Customer not found");
+
+        _db.Customers.Remove(customer);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
     }
 
-    [HttpPost("{id}/tasks")]
-    public async Task<IActionResult> AddTask(int id, CreateTaskDto dto)
+    [HttpGet("{id:guid}/tasks")]
+    public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(Guid id)
     {
-        var customerExists = await _db.Customers.AnyAsync(c => c.Id == id); 
+        var customerExists = await _db.Customers.AnyAsync(c => c.Id == id);
+
         if (!customerExists)
             return NotFound("Customer not found");
+
+        var tasks = await _db.Tasks
+            .Where(t => t.CustomerId == id)
+            .OrderBy(t => t.IsDone)
+            .ThenBy(t => t.DueDate)
+            .ToListAsync();
+
+        return Ok(tasks);
+    }
+
+    [HttpPost("{id:guid}/tasks")]
+public async Task<ActionResult<TaskItem>> AddTask(Guid id, CreateTaskDto dto)
+{
+    try
+    {
+        var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Id == id);
+
+        if (customer == null)
+            return NotFound($"Customer with id {id} was not found.");
 
         if (string.IsNullOrWhiteSpace(dto.Title))
             return BadRequest("Title is required");
 
         var task = new TaskItem
         {
-            Title = dto.Title,
+            Id = Guid.NewGuid(),
+            Title = dto.Title.Trim(),
             DueDate = dto.DueDate,
             IsDone = false,
             CustomerId = id
@@ -82,47 +156,23 @@ public class CustomersController : ControllerBase
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
 
-        return Ok(task);
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Id == id);
-        if (customer == null)
-            return NotFound();
-
-        // Also delete tasks when deleting customer, might improve it later
-        var customerTasks = await _db.Tasks
-            .Where(t => t.CustomerId == id)
-            .ToListAsync();
-
-        if (customerTasks.Any())
+        return Ok(new
         {
-            _db.Tasks.RemoveRange(customerTasks);
-        }
-
-        _db.Customers.Remove(customer);
-        await _db.SaveChangesAsync();
-
-        return NoContent();
-}
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateCustomerDto dto)
-    {
-        if (string.IsNullOrWhiteSpace(dto.Name))
-            return BadRequest("Please enter a valid name");
-
-        var customer = await _db.Customers.FindAsync(id);
-        if (customer == null)
-            return NotFound("Customer not found");
-
-        customer.Name = dto.Name;
-        customer.Email = dto.Email;
-        customer.Country = dto.Country;
-
-        await _db.SaveChangesAsync();
-        
-        return Ok(customer);
+         task.Id,
+         task.Title,
+         task.DueDate,
+         task.IsDone,
+         task.CustomerId   
+        });
     }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new
+        {
+            message = ex.Message,
+            inner = ex.InnerException?.Message,
+            stack = ex.StackTrace
+        });
+    }
+}
 }

@@ -33,6 +33,11 @@ function AddTaskForm({ selectedCustomer, onTaskCreated }) {
       setTitle("");
       setDueDate("");
 
+            
+      console.log("selectedCustomer:", selectedCustomer);
+      console.log("customerId being sent:", selectedCustomer?.id);
+      console.log("task payload:", payload);
+
       await onTaskCreated();
     } catch (err) {
       setError(getApiErrorMessage(err));
