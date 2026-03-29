@@ -1,11 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { getApiErrorMessage } from "../api/apiError";
 
 function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
+
+  if (user) return <Navigate to="/app" replace />;
 
   const handleChange = (e) => {
     setFormData((state) => ({
@@ -14,9 +22,19 @@ function LoginPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login form submitted:", formData);
+    setError("");
+    setSubmitting(true);
+
+    try {
+      await login(formData.email, formData.password);
+      navigate("/app");
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -56,11 +74,16 @@ function LoginPage() {
             />
           </div>
 
+          {error && (
+            <p className="text-sm font-medium text-red-600">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-xl bg-emerald-600 px-4 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700"
+            disabled={submitting}
+            className="w-full rounded-xl bg-emerald-600 px-4 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Log In
+            {submitting ? "Logging in..." : "Log In"}
           </button>
         </form>
 

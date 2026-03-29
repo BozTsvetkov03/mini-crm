@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { getApiErrorMessage } from "../api/apiError";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -8,6 +10,12 @@ function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { register, user } = useAuth();
+  const navigate = useNavigate();
+
+  if (user) return <Navigate to="/app" replace />;
 
   const handleChange = (e) => {
     setFormData((state) => ({
@@ -16,9 +24,25 @@ function RegisterPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register form submitted:", formData);
+    setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await register(formData.name, formData.email, formData.password);
+      navigate("/app");
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -86,11 +110,16 @@ function RegisterPage() {
             />
           </div>
 
+          {error && (
+            <p className="text-sm font-medium text-red-600">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-xl bg-emerald-600 px-4 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700"
+            disabled={submitting}
+            className="w-full rounded-xl bg-emerald-600 px-4 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Create Account
+            {submitting ? "Creating account..." : "Create Account"}
           </button>
         </form>
 

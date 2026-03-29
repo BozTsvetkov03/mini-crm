@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
@@ -8,6 +10,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/tasks")]
+[Authorize]
 public class TasksController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -17,11 +20,14 @@ public class TasksController : ControllerBase
         _db = db;
     }
 
+    private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<TaskItem>> GetTaskById(Guid id)
     {
+        var userId = GetUserId();
         var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
 
         if (task == null)
             return NotFound("Task not found");
@@ -32,8 +38,9 @@ public class TasksController : ControllerBase
     [HttpPut("{id:guid}/complete")]
     public async Task<ActionResult<TaskItem>> Complete(Guid id)
     {
+        var userId = GetUserId();
         var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
 
         if (task == null)
             return NotFound("Task not found");
@@ -54,8 +61,9 @@ public class TasksController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        var userId = GetUserId();
         var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
 
         if (task == null)
             return NotFound("Task not found");
@@ -69,7 +77,9 @@ public class TasksController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<TaskItem>> Update(Guid id, UpdateTaskDto dto)
     {
-        var task = await _db.Tasks.FindAsync(id);
+        var userId = GetUserId();
+        var task = await _db.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
 
         if (task == null)
             return NotFound("Task not found");

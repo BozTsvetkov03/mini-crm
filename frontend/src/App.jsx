@@ -1,31 +1,41 @@
-import { useEffect, useState, useRef, useMemo } from "react";
-import { getCustomers, deleteCustomer, updateCustomer } from "./api/customersApi";
-import { getApiErrorMessage } from "./api/apiError";
-import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "./api/tasksApi";
 import { Route, Routes } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/Dashboard";
 import PublicLayout from "./components/PublicLayout";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
-
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
+  const { loading } = useAuth();
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      <Route element={<PublicLayout/>}>
-            <Route path="/" element={<HomePage/>} />
-            <Route path="/register" element={<RegisterPage/>} />
-            <Route path="/login" element={<LoginPage/>} />
-            <Route path="/app" element={<DashboardPage/>} />
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
-
     </Routes>
-
-
-  )
+  );
 }
 
 export default App;

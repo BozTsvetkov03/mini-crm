@@ -8,5 +8,7 @@ public class TaskItem
     public bool IsDone { get; set; }
 
     public Guid CustomerId { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
     public Customer Customer { get; set; } = null!;
 }

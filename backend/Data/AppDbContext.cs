@@ -1,14 +1,16 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 
 namespace Backend.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-    public DbSet<User> Users => Set<User>();
+
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
 
@@ -16,14 +18,10 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
-
         modelBuilder.Entity<Customer>()
-            .HasOne(c => c.User)
+            .HasOne(c => c.Owner)
             .WithMany(u => u.Customers)
-            .HasForeignKey(c => c.UserId)
+            .HasForeignKey(c => c.OwnerId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<TaskItem>()

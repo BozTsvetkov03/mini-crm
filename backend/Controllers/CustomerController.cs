@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Data;
@@ -8,6 +10,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/customers")]
+[Authorize]
 public class CustomersController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -17,10 +20,14 @@ public class CustomersController : ControllerBase
         _db = db;
     }
 
+    private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
+        var userId = GetUserId();
         var customers = await _db.Customers
+            .Where(c => c.OwnerId == userId)
             .OrderBy(c => c.Name)
             .ToListAsync();
 
@@ -30,8 +37,9 @@ public class CustomersController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<Customer>> GetCustomerById(Guid id)
     {
+        var userId = GetUserId();
         var customer = await _db.Customers
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
 
         if (customer == null)
             return NotFound("Customer not found");
@@ -51,23 +59,17 @@ public class CustomersController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.Country))
             return BadRequest("Country is required");
 
-        // var customer = new Customer
-        // {
-        //     Id = Guid.NewGuid(),
-        //     Name = dto.Name.Trim(),
-        //     Email = dto.Email.Trim(),
-        //     Country = dto.Country.Trim(),
-        //     UserId = Guid.Empty // temporary until auth is implemented
-        // };
-            var customer = new Customer
-            {
-                Id = Guid.NewGuid(),
-                Name = dto.Name.Trim(),
-                Email = dto.Email.Trim(),
-                Country = dto.Country.Trim(),
-                Company = dto.Company?.Trim(),
-                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111")
-            };
+        var userId = GetUserId();
+
+        var customer = new Customer
+        {
+            Id = Guid.NewGuid(),
+            Name = dto.Name.Trim(),
+            Email = dto.Email.Trim(),
+            Country = dto.Country.Trim(),
+            Company = dto.Company?.Trim(),
+            OwnerId = userId
+        };
 
         _db.Customers.Add(customer);
         await _db.SaveChangesAsync();
@@ -78,7 +80,9 @@ public class CustomersController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<Customer>> UpdateCustomer(Guid id, UpdateCustomerDto dto)
     {
-        var customer = await _db.Customers.FindAsync(id);
+        var userId = GetUserId();
+        var customer = await _db.Customers
+            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
 
         if (customer == null)
             return NotFound("Customer not found");
@@ -105,7 +109,9 @@ public class CustomersController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCustomer(Guid id)
     {
-        var customer = await _db.Customers.FindAsync(id);
+        var userId = GetUserId();
+        var customer = await _db.Customers
+            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
 
         if (customer == null)
             return NotFound("Customer not found");
@@ -119,7 +125,9 @@ public class CustomersController : ControllerBase
     [HttpGet("{id:guid}/tasks")]
     public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(Guid id)
     {
-        var customerExists = await _db.Customers.AnyAsync(c => c.Id == id);
+        var userId = GetUserId();
+        var customerExists = await _db.Customers
+            .AnyAsync(c => c.Id == id && c.OwnerId == userId);
 
         if (!customerExists)
             return NotFound("Customer not found");
@@ -134,14 +142,14 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPost("{id:guid}/tasks")]
-public async Task<ActionResult<TaskItem>> AddTask(Guid id, CreateTaskDto dto)
-{
-    try
+    public async Task<ActionResult<TaskItem>> AddTask(Guid id, CreateTaskDto dto)
     {
-        var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Id == id);
+        var userId = GetUserId();
+        var customer = await _db.Customers
+            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
 
         if (customer == null)
-            return NotFound($"Customer with id {id} was not found.");
+            return NotFound("Customer not found");
 
         if (string.IsNullOrWhiteSpace(dto.Title))
             return BadRequest("Title is required");
@@ -160,21 +168,11 @@ public async Task<ActionResult<TaskItem>> AddTask(Guid id, CreateTaskDto dto)
 
         return Ok(new
         {
-         task.Id,
-         task.Title,
-         task.DueDate,
-         task.IsDone,
-         task.CustomerId   
+            task.Id,
+            task.Title,
+            task.DueDate,
+            task.IsDone,
+            task.CustomerId
         });
     }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new
-        {
-            message = ex.Message,
-            inner = ex.InnerException?.Message,
-            stack = ex.StackTrace
-        });
-    }
-}
 }
