@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { createCustomer } from "../api/customersApi";
 import { getApiErrorMessage } from "../api/apiError";
 import CountrySelect from "./countrySelect";
@@ -21,6 +21,11 @@ function AddCustomerForm({ onCustomerCreated }) {
 
     if (!email.trim()) {
       setError("Customer email is required.");
+      return;
+    }
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -63,11 +68,12 @@ function AddCustomerForm({ onCustomerCreated }) {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor="customer-name-input" className="mb-2 block text-sm font-medium text-gray-700">
             Name
           </label>
 
           <input
+            id="customer-name-input"
             type="text"
             value={name}
             maxLength={50}
@@ -99,10 +105,11 @@ function AddCustomerForm({ onCustomerCreated }) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor="customer-email-input" className="mb-2 block text-sm font-medium text-gray-700">
             Email
           </label>
           <input
+            id="customer-email-input"
             type="email"
             value={email}
             maxLength={50}

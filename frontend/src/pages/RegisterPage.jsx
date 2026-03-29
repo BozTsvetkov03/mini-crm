@@ -28,6 +28,16 @@ function RegisterPage() {
     e.preventDefault();
     setError("");
 
+    if (!formData.email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(formData.email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;

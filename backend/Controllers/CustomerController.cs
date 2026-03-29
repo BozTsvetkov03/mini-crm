@@ -1,10 +1,11 @@
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using Backend.Data;
 using Backend.Dtos;
 using Backend.Models;
+using Backend.Services;
+using Backend.Services.Interfaces;
 
 namespace Backend.Controllers;
 
@@ -13,11 +14,13 @@ namespace Backend.Controllers;
 [Authorize]
 public class CustomersController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly ICustomerService _customerService;
+    private readonly ITaskService _taskService;
 
-    public CustomersController(AppDbContext db)
+    public CustomersController(ICustomerService customerService, ITaskService taskService)
     {
-        _db = db;
+        _customerService = customerService;
+        _taskService = taskService;
     }
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -26,11 +29,7 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
         var userId = GetUserId();
-        var customers = await _db.Customers
-            .Where(c => c.OwnerId == userId)
-            .OrderBy(c => c.Name)
-            .ToListAsync();
-
+        var customers = await _customerService.GetCustomersAsync(userId);
         return Ok(customers);
     }
 
@@ -38,8 +37,7 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<Customer>> GetCustomerById(Guid id)
     {
         var userId = GetUserId();
-        var customer = await _db.Customers
-            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
+        var customer = await _customerService.GetCustomerByIdAsync(id, userId);
 
         if (customer == null)
             return NotFound("Customer not found");
@@ -56,68 +54,65 @@ public class CustomersController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest("Email is required");
 
+        if (!IsValidEmail(dto.Email.Trim()))
+            return BadRequest("Invalid email format");
+
         if (string.IsNullOrWhiteSpace(dto.Country))
             return BadRequest("Country is required");
 
         var userId = GetUserId();
 
-        var customer = new Customer
+        try
         {
-            Id = Guid.NewGuid(),
-            Name = dto.Name.Trim(),
-            Email = dto.Email.Trim(),
-            Country = dto.Country.Trim(),
-            Company = dto.Company?.Trim(),
-            OwnerId = userId
-        };
-
-        _db.Customers.Add(customer);
-        await _db.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
+            var customer = await _customerService.CreateCustomerAsync(dto, userId);
+            return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
+        }
+        catch (DuplicateEmailException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<Customer>> UpdateCustomer(Guid id, UpdateCustomerDto dto)
     {
-        var userId = GetUserId();
-        var customer = await _db.Customers
-            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
-
-        if (customer == null)
-            return NotFound("Customer not found");
-
         if (string.IsNullOrWhiteSpace(dto.Name))
             return BadRequest("Name is required");
 
         if (string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest("Email is required");
 
+        if (!IsValidEmail(dto.Email.Trim()))
+            return BadRequest("Invalid email format");
+
         if (string.IsNullOrWhiteSpace(dto.Country))
             return BadRequest("Country is required");
 
-        customer.Name = dto.Name.Trim();
-        customer.Email = dto.Email.Trim();
-        customer.Country = dto.Country.Trim();
-        customer.Company = dto.Company?.Trim();
+        var userId = GetUserId();
 
-        await _db.SaveChangesAsync();
+        try
+        {
+            var customer = await _customerService.UpdateCustomerAsync(id, dto, userId);
 
-        return Ok(customer);
+            if (customer == null)
+                return NotFound("Customer not found");
+
+            return Ok(customer);
+        }
+        catch (DuplicateEmailException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCustomer(Guid id)
     {
         var userId = GetUserId();
-        var customer = await _db.Customers
-            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
+        var deleted = await _customerService.DeleteCustomerAsync(id, userId);
 
-        if (customer == null)
+        if (!deleted)
             return NotFound("Customer not found");
-
-        _db.Customers.Remove(customer);
-        await _db.SaveChangesAsync();
 
         return NoContent();
     }
@@ -126,53 +121,32 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(Guid id)
     {
         var userId = GetUserId();
-        var customerExists = await _db.Customers
-            .AnyAsync(c => c.Id == id && c.OwnerId == userId);
+        var customer = await _customerService.GetCustomerByIdAsync(id, userId);
 
-        if (!customerExists)
+        if (customer == null)
             return NotFound("Customer not found");
 
-        var tasks = await _db.Tasks
-            .Where(t => t.CustomerId == id)
-            .OrderBy(t => t.IsDone)
-            .ThenBy(t => t.DueDate)
-            .ToListAsync();
-
+        var tasks = await _taskService.GetTasksByCustomerAsync(id, userId);
         return Ok(tasks);
     }
 
     [HttpPost("{id:guid}/tasks")]
     public async Task<ActionResult<TaskItem>> AddTask(Guid id, CreateTaskDto dto)
     {
-        var userId = GetUserId();
-        var customer = await _db.Customers
-            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
-
-        if (customer == null)
-            return NotFound("Customer not found");
-
         if (string.IsNullOrWhiteSpace(dto.Title))
             return BadRequest("Title is required");
 
-        var task = new TaskItem
-        {
-            Id = Guid.NewGuid(),
-            Title = dto.Title.Trim(),
-            DueDate = dto.DueDate,
-            IsDone = false,
-            CustomerId = id
-        };
+        var userId = GetUserId();
+        var task = await _taskService.CreateTaskAsync(id, dto, userId);
 
-        _db.Tasks.Add(task);
-        await _db.SaveChangesAsync();
+        if (task == null)
+            return NotFound("Customer not found");
 
-        return Ok(new
-        {
-            task.Id,
-            task.Title,
-            task.DueDate,
-            task.IsDone,
-            task.CustomerId
-        });
+        return Ok(task);
+    }
+
+    private static bool IsValidEmail(string email)
+    {
+        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$");
     }
 }

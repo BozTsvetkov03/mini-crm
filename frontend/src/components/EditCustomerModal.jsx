@@ -30,6 +30,16 @@ function EditCustomerModal({ customer, open, onClose, onSave }) {
       return;
     }
 
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     setSaving(true);
     setError("");
 

@@ -1,10 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Backend.Data;
 using Backend.Dtos;
 using Backend.Models;
+using Backend.Services.Interfaces;
 
 namespace Backend.Controllers;
 
@@ -13,11 +12,11 @@ namespace Backend.Controllers;
 [Authorize]
 public class TasksController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly ITaskService _taskService;
 
-    public TasksController(AppDbContext db)
+    public TasksController(ITaskService taskService)
     {
-        _db = db;
+        _taskService = taskService;
     }
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -26,8 +25,7 @@ public class TasksController : ControllerBase
     public async Task<ActionResult<TaskItem>> GetTaskById(Guid id)
     {
         var userId = GetUserId();
-        var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
+        var task = await _taskService.GetTaskByIdAsync(id, userId);
 
         if (task == null)
             return NotFound("Task not found");
@@ -39,37 +37,22 @@ public class TasksController : ControllerBase
     public async Task<ActionResult<TaskItem>> Complete(Guid id)
     {
         var userId = GetUserId();
-        var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
+        var task = await _taskService.CompleteTaskAsync(id, userId);
 
         if (task == null)
             return NotFound("Task not found");
 
-        task.IsDone = true;
-        await _db.SaveChangesAsync();
-
-        return Ok(new
-        {
-            task.Id,
-            task.Title,
-            task.DueDate,
-            task.IsDone,
-            task.CustomerId
-        });
+        return Ok(task);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var userId = GetUserId();
-        var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
+        var deleted = await _taskService.DeleteTaskAsync(id, userId);
 
-        if (task == null)
+        if (!deleted)
             return NotFound("Task not found");
-
-        _db.Tasks.Remove(task);
-        await _db.SaveChangesAsync();
 
         return NoContent();
     }
@@ -77,29 +60,15 @@ public class TasksController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<TaskItem>> Update(Guid id, UpdateTaskDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return BadRequest("Title is required");
+
         var userId = GetUserId();
-        var task = await _db.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.Customer.OwnerId == userId);
+        var task = await _taskService.UpdateTaskAsync(id, dto, userId);
 
         if (task == null)
             return NotFound("Task not found");
 
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            return BadRequest("Title is required");
-
-        task.Title = dto.Title.Trim();
-        task.DueDate = dto.DueDate;
-        task.IsDone = dto.IsDone;
-
-        await _db.SaveChangesAsync();
-
-        return Ok(new
-        {
-            task.Id,
-            task.Title,
-            task.DueDate,
-            task.IsDone,
-            task.CustomerId
-        });
+        return Ok(task);
     }
 }

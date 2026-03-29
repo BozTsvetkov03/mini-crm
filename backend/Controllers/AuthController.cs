@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Backend.Dtos;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -32,6 +33,9 @@ public class AuthController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.Password))
             return BadRequest("Password is required");
 
+        if (!IsValidEmail(dto.Email.Trim()))
+            return BadRequest("Invalid email");
+
         var user = new User
         {
             UserName = dto.Email.Trim(),
@@ -43,6 +47,10 @@ public class AuthController : ControllerBase
 
         if (!result.Succeeded)
         {
+            // Don't reveal whether an email is already registered
+            if (result.Errors.Any(e => e.Code == "DuplicateUserName" || e.Code == "DuplicateEmail"))
+                return BadRequest("Invalid email");
+
             var firstError = result.Errors.First().Description;
             return BadRequest(firstError);
         }
@@ -91,5 +99,10 @@ public class AuthController : ControllerBase
             return Unauthorized();
 
         return Ok(new { user.Id, user.Name, user.Email });
+    }
+
+    private static bool IsValidEmail(string email)
+    {
+        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$");
     }
 }

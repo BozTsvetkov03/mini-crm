@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Backend.Services;
+using Backend.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +76,9 @@ builder.Services.AddCors(options =>
             .WithOrigins("http://localhost:5173");
     });
 });
+
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 
