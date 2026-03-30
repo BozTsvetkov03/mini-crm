@@ -17,11 +17,7 @@ function Tasks({
   const [editingTask, setEditingTask] = useState(null);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit">
-      <h2 className="text-xl font-semibold mb-6 text-gray-900">
-        {selectedCustomer ? `Tasks for ${selectedCustomer.name}` : "Tasks"}
-      </h2>
-
+    <>
       <AddTaskForm
         selectedCustomer={selectedCustomer}
         onTaskCreated={onTaskCreated}
@@ -120,7 +116,7 @@ function Tasks({
         onClose={() => setEditingTask(null)}
         onSave={onTaskUpdated}
       />
-    </div>
+    </>
   );
 }
 

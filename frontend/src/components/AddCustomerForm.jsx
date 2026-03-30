@@ -45,8 +45,6 @@ function AddCustomerForm({ onCustomerCreated }) {
         company: company.trim() || null,
       };
 
-      console.log("customer payload:", payload);
-
       await createCustomer(payload);
 
       setName("");

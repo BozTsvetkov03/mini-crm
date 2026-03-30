@@ -73,6 +73,7 @@ function RegisterPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              maxLength={50}
               placeholder="Your name"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />
@@ -87,6 +88,7 @@ function RegisterPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              maxLength={100}
               placeholder="you@example.com"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />
@@ -101,6 +103,7 @@ function RegisterPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              maxLength={128}
               placeholder="Create a password"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />
@@ -115,6 +118,7 @@ function RegisterPage() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              maxLength={128}
               placeholder="Repeat your password"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />

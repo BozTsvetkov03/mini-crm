@@ -33,8 +33,4 @@ backend/obj
 backend/appsettings.Development.json
 backend/keys/
 
-# db
-*.db-shm
-*.db-wal
-
 

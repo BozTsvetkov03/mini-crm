@@ -4,6 +4,7 @@ using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Backend.Controllers;
 
@@ -22,16 +23,26 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [IgnoreAntiforgeryToken]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
             return BadRequest("Name is required");
 
+        if (dto.Name.Trim().Length > 50)
+            return BadRequest("Name must be 50 characters or less");
+
         if (string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest("Email is required");
 
+        if (dto.Email.Trim().Length > 100)
+            return BadRequest("Email must be 100 characters or less");
+
         if (string.IsNullOrWhiteSpace(dto.Password))
             return BadRequest("Password is required");
+
+        if (dto.Password.Length > 128)
+            return BadRequest("Password must be 128 characters or less");
 
         if (!IsValidEmail(dto.Email.Trim()))
             return BadRequest("Invalid email");
@@ -62,6 +73,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [IgnoreAntiforgeryToken]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
@@ -71,9 +83,14 @@ public class AuthController : ControllerBase
         if (user == null)
             return Unauthorized("Invalid email or password");
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: false);
+        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
         if (!result.Succeeded)
+        {
+            if (result.IsLockedOut)
+                return Unauthorized("Account temporarily locked. Try again in a few minutes.");
+
             return Unauthorized("Invalid email or password");
+        }
 
         await _signInManager.SignInAsync(user, isPersistent: true);
 

@@ -2,19 +2,25 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { getCustomers, deleteCustomer, updateCustomer } from "../api/customersApi";
 import { getApiErrorMessage } from "../api/apiError";
 import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "../api/tasksApi";
+import { getNotesByCustomerId, deleteNote, updateNote } from "../api/notesApi";
 import Customers from "../components/Customers";
 import Tasks from "../components/Tasks";
+import Notes from "../components/Notes";
 
 export default function DashboardPage() {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [activeTab, setActiveTab] = useState("tasks");
 
   const [customersLoading, setCustomersLoading] = useState(false);
   const [tasksLoading, setTasksLoading] = useState(false);
+  const [notesLoading, setNotesLoading] = useState(false);
 
   const [customersError, setCustomersError] = useState("");
   const [tasksError, setTasksError] = useState("");
+  const [notesError, setNotesError] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -43,6 +49,19 @@ export default function DashboardPage() {
       setTasksError(getApiErrorMessage(error));
     } finally {
       setTasksLoading(false);
+    }
+  };
+
+  const loadNotes = async (customerId) => {
+    try {
+      setNotesLoading(true);
+      setNotesError("");
+      const data = await getNotesByCustomerId(customerId);
+      setNotes(data);
+    } catch (error) {
+      setNotesError(getApiErrorMessage(error));
+    } finally {
+      setNotesLoading(false);
     }
   };
 
@@ -98,6 +117,35 @@ export default function DashboardPage() {
     }
   };
 
+  const handleNoteCreated = async () => {
+    if (!selectedCustomer) return;
+    await loadNotes(selectedCustomer.id);
+  };
+
+  const handleNoteDeleted = async (noteId) => {
+    try {
+      await deleteNote(noteId);
+      if (selectedCustomer) {
+        await loadNotes(selectedCustomer.id);
+      }
+    } catch (error) {
+      setNotesError(getApiErrorMessage(error));
+    }
+  };
+
+  const handleNoteUpdated = async (noteId, noteData) => {
+    try {
+      await updateNote(noteId, noteData);
+      if (selectedCustomer) {
+        const refreshedNotes = await getNotesByCustomerId(selectedCustomer.id);
+        setNotes(refreshedNotes);
+      }
+    } catch (error) {
+      console.error("Failed to update note:", error);
+      throw error;
+    }
+  };
+
   const handleCustomerDeleted = async (customerId) => {
     try {
       await deleteCustomer(customerId);
@@ -105,6 +153,7 @@ export default function DashboardPage() {
       if (selectedCustomer?.id === customerId) {
         setSelectedCustomer(null);
         setTasks([]);
+        setNotes([]);
       }
 
       await loadCustomers();
@@ -149,10 +198,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!selectedCustomer) {
       setTasks([]);
+      setNotes([]);
       return;
     }
 
     loadTasks(selectedCustomer.id);
+    loadNotes(selectedCustomer.id);
   }, [selectedCustomer]);
 
   useEffect(() => {
@@ -190,16 +241,59 @@ export default function DashboardPage() {
             onCustomerUpdated={handleCustomerUpdated}
           />
 
-          <Tasks
-            selectedCustomer={selectedCustomer}
-            tasks={tasks}
-            loading={tasksLoading}
-            error={tasksError}
-            onCompleteTask={handleTaskCompleted}
-            onTaskCreated={handleTaskCreated}
-            onTaskDeleted={handleTaskDeleted}
-            onTaskUpdated={handleTaskUpdated}
-          />
+          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">
+              {selectedCustomer ? selectedCustomer.name : "Details"}
+            </h2>
+
+            <div className="flex border-b border-gray-200 mb-6">
+              <button
+                onClick={() => setActiveTab("tasks")}
+                className={`px-4 py-2 text-sm font-medium transition -mb-px ${
+                  activeTab === "tasks"
+                    ? "border-b-2 border-emerald-600 text-emerald-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Tasks
+              </button>
+              <button
+                onClick={() => setActiveTab("notes")}
+                className={`px-4 py-2 text-sm font-medium transition -mb-px ${
+                  activeTab === "notes"
+                    ? "border-b-2 border-amber-600 text-amber-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Notes
+              </button>
+            </div>
+
+            {activeTab === "tasks" && (
+              <Tasks
+                selectedCustomer={selectedCustomer}
+                tasks={tasks}
+                loading={tasksLoading}
+                error={tasksError}
+                onCompleteTask={handleTaskCompleted}
+                onTaskCreated={handleTaskCreated}
+                onTaskDeleted={handleTaskDeleted}
+                onTaskUpdated={handleTaskUpdated}
+              />
+            )}
+
+            {activeTab === "notes" && (
+              <Notes
+                selectedCustomer={selectedCustomer}
+                notes={notes}
+                loading={notesLoading}
+                error={notesError}
+                onNoteCreated={handleNoteCreated}
+                onNoteDeleted={handleNoteDeleted}
+                onNoteUpdated={handleNoteUpdated}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

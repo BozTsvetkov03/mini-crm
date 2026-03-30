@@ -17,4 +17,7 @@ public class Customer
 
     [JsonIgnore]
     public List<TaskItem> Tasks { get; set; } = [];
+
+    [JsonIgnore]
+    public List<NoteItem> Notes { get; set; } = [];
 }

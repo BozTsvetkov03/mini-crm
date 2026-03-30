@@ -7,6 +7,7 @@ using Backend.Models;
 using Backend.Services;
 using Backend.Services.Interfaces;
 
+
 namespace Backend.Controllers;
 
 [ApiController]
@@ -16,11 +17,13 @@ public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
     private readonly ITaskService _taskService;
+    private readonly INoteService _noteService;
 
-    public CustomersController(ICustomerService customerService, ITaskService taskService)
+    public CustomersController(ICustomerService customerService, ITaskService taskService, INoteService noteService)
     {
         _customerService = customerService;
         _taskService = taskService;
+        _noteService = noteService;
     }
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -143,6 +146,34 @@ public class CustomersController : ControllerBase
             return NotFound("Customer not found");
 
         return Ok(task);
+    }
+
+    [HttpGet("{id:guid}/notes")]
+    public async Task<ActionResult<IEnumerable<NoteItem>>> GetNotes(Guid id)
+    {
+        var userId = GetUserId();
+        var customer = await _customerService.GetCustomerByIdAsync(id, userId);
+
+        if (customer == null)
+            return NotFound("Customer not found");
+
+        var notes = await _noteService.GetNotesByCustomerAsync(id, userId);
+        return Ok(notes);
+    }
+
+    [HttpPost("{id:guid}/notes")]
+    public async Task<ActionResult<NoteItem>> AddNote(Guid id, CreateNoteDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Content))
+            return BadRequest("Content is required");
+
+        var userId = GetUserId();
+        var note = await _noteService.CreateNoteAsync(id, dto, userId);
+
+        if (note == null)
+            return NotFound("Customer not found");
+
+        return Ok(note);
     }
 
     private static bool IsValidEmail(string email)

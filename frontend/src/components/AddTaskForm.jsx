@@ -26,17 +26,10 @@ function AddTaskForm({ selectedCustomer, onTaskCreated }) {
         title: title.trim(),
         dueDate: dueDate || null,
       };
-      console.log("task payload:", payload);
-      
       await createTask(selectedCustomer.id, payload);
 
       setTitle("");
       setDueDate("");
-
-            
-      console.log("selectedCustomer:", selectedCustomer);
-      console.log("customerId being sent:", selectedCustomer?.id);
-      console.log("task payload:", payload);
 
       await onTaskCreated();
     } catch (err) {

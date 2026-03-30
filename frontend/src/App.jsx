@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingSpinner from "./components/LoadingSpinner";
+import NotFound from "./pages/NotFound";
 
 function App() {
   const { loading } = useAuth();
@@ -33,6 +34,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/*" element={<NotFound/>}></Route>
       </Route>
     </Routes>
   );
