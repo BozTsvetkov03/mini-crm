@@ -10,6 +10,7 @@ using Backend.Services.Interfaces;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+var isDev = builder.Environment.IsDevelopment();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -32,8 +33,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name = ".crm.auth";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = isDev ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+    options.Cookie.SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
     options.ExpireTimeSpan = TimeSpan.FromDays(3);
     options.SlidingExpiration = true;
     options.Events.OnRedirectToLogin = ctx =>
@@ -53,8 +54,8 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-XSRF-TOKEN";
     options.Cookie.Name = ".crm.csrf";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = isDev ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+    options.Cookie.SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
 });
 
 builder.Services.AddDataProtection()
@@ -87,13 +88,22 @@ builder.Services.AddCors(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromMinutes(1),
+                PermitLimit = 45,
+                QueueLimit = 0
+            }));
     options.AddPolicy("auth", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                Window = TimeSpan.FromMinutes(15),
-                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                PermitLimit = 15,
                 QueueLimit = 0
             }));
 });
@@ -141,7 +151,7 @@ app.Use(async (context, next) =>
             {
                 HttpOnly = false,
                 Secure = !app.Environment.IsDevelopment(),
-                SameSite = SameSiteMode.Lax,
+                SameSite = app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.None,
                 Path = "/"
             });
     }

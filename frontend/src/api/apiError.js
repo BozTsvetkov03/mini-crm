@@ -1,4 +1,8 @@
 export function getApiErrorMessage(error) {
+  if (error.response?.status === 429) {
+    return "Too many requests. Please wait a few minutes and try again.";
+  }
+
   const data = error.response?.data;
 
   if (data?.errors) {
