@@ -2,6 +2,9 @@
 
 A full-stack mini CRM application built with React (Vite) and ASP.NET Core Web API. The app allows users to manage customers and their associated tasks/notes through a simple and responsive interface.
 
+## Preview
+- [Preview Link](https://mini-crm-elbq.onrender.com/)
+
 ## Screenshots
 ![](frontend/src/assets/Screenshot_1.jpg)
 
