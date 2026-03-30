@@ -44,7 +44,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.Name = ".crm.auth";
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = isDev ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
-    options.Cookie.SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
+    options.Cookie.SameSite = SameSiteMode.Lax;
     options.ExpireTimeSpan = TimeSpan.FromDays(3);
     options.SlidingExpiration = true;
 
@@ -67,7 +67,7 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.Name = ".crm.csrf";
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = isDev ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
-    options.Cookie.SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
 builder.Services.AddDataProtection()
@@ -180,7 +180,7 @@ app.Use(async (context, next) =>
             {
                 HttpOnly = false,
                 Secure = !app.Environment.IsDevelopment(),
-                SameSite = app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.None,
+                SameSite = SameSiteMode.Lax,
                 Path = "/"
             });
     }
