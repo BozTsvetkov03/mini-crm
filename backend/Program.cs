@@ -130,6 +130,13 @@ builder.Services.AddScoped<INoteService, NoteService>();
 
 var app = builder.Build();
 
+// Apply pending migrations on startup so Render DB stays in sync
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // Must be early so ASP.NET correctly sees HTTPS behind Render proxy
 app.UseForwardedHeaders();
 
