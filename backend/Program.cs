@@ -1,12 +1,13 @@
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Backend.Services;
-using Backend.Services.Interfaces;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,15 @@ var isDev = builder.Environment.IsDevelopment();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // Required when running behind Render / reverse proxies
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 {
@@ -37,11 +47,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
     options.ExpireTimeSpan = TimeSpan.FromDays(3);
     options.SlidingExpiration = true;
+
     options.Events.OnRedirectToLogin = ctx =>
     {
         ctx.Response.StatusCode = 401;
         return Task.CompletedTask;
     };
+
     options.Events.OnRedirectToAccessDenied = ctx =>
     {
         ctx.Response.StatusCode = 403;
@@ -70,24 +82,27 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:5173"];
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>()
+    ?? new[] { "http://localhost:5173" };
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend", policy =>
     {
         policy
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .WithOrigins(allowedOrigins);
+            .AllowCredentials();
     });
 });
 
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
+
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -97,6 +112,7 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = 45,
                 QueueLimit = 0
             }));
+
     options.AddPolicy("auth", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -113,6 +129,9 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<INoteService, NoteService>();
 
 var app = builder.Build();
+
+// Must be early so ASP.NET correctly sees HTTPS behind Render proxy
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {
@@ -146,7 +165,10 @@ app.Use(async (context, next) =>
     {
         var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
         var tokens = antiforgery.GetAndStoreTokens(context);
-        context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!,
+
+        context.Response.Cookies.Append(
+            "XSRF-TOKEN",
+            tokens.RequestToken!,
             new CookieOptions
             {
                 HttpOnly = false,
@@ -155,11 +177,12 @@ app.Use(async (context, next) =>
                 Path = "/"
             });
     }
+
     await next();
 });
 
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
-
