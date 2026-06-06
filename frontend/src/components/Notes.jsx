@@ -24,21 +24,21 @@ function Notes({
 
       {!selectedCustomer && (
         <div className="py-12 text-center">
-          <p className="text-gray-500">Select a customer to view notes.</p>
+          <p className="text-gray-500 dark:text-gray-400">Select a customer to view notes.</p>
         </div>
       )}
 
       {selectedCustomer && loading && <LoadingSpinner />}
 
       {selectedCustomer && error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-          <p className="text-red-700 font-medium">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 dark:bg-red-950/40 dark:border-red-900">
+          <p className="text-red-700 font-medium dark:text-red-400">{error}</p>
         </div>
       )}
 
       {selectedCustomer && !loading && !error && !notes?.length && (
         <div className="py-8 text-center">
-          <p className="text-gray-500">No notes found for current customer.</p>
+          <p className="text-gray-500 dark:text-gray-400">No notes found for current customer.</p>
         </div>
       )}
 
@@ -47,12 +47,12 @@ function Notes({
           {notes.map((note) => (
             <li
               key={note.id}
-              className="border border-gray-200 rounded-xl p-4"
+              className="border border-gray-200 rounded-xl p-4 dark:border-gray-800"
             >
-              <p className="text-gray-900 whitespace-pre-wrap wrap-break-word">{note.content}</p>
+              <p className="text-gray-900 whitespace-pre-wrap wrap-break-word dark:text-gray-100">{note.content}</p>
 
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   {new Date(note.updatedAt).toLocaleString()}
                 </p>
 

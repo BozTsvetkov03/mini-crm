@@ -1,7 +1,8 @@
 import Select from "react-select";
 import { useMemo } from "react";
 import { getNames } from "country-list";
-import { selectStyles } from "../styles/reactSelectStyles";
+import { makeSelectStyles } from "../styles/reactSelectStyles";
+import { useTheme } from "../contexts/ThemeContext";
 
 const formatCountryName = (name) => {
   const cleaned = name.replace(/\s*\(the\)/gi, "");
@@ -15,6 +16,9 @@ const formatCountryName = (name) => {
 };
 
 function CountrySelect({ value, onChange }) {
+  const { theme } = useTheme();
+  const selectStyles = useMemo(() => makeSelectStyles(theme === "dark"), [theme]);
+
   const countryOptions = useMemo(() => {
     const preferredCountry = "Bulgaria";
 

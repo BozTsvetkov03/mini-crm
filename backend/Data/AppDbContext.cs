@@ -14,6 +14,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<NoteItem> Notes => Set<NoteItem>();
+    public DbSet<Activity> Activities => Set<Activity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -48,5 +49,15 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         modelBuilder.Entity<NoteItem>()
             .Property(n => n.UpdatedAt)
             .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<Activity>()
+            .Property(a => a.Type)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<Activity>()
+            .HasOne(a => a.Customer)
+            .WithMany(c => c.Activities)
+            .HasForeignKey(a => a.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

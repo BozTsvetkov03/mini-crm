@@ -25,21 +25,21 @@ function Tasks({
 
       {!selectedCustomer && (
         <div className="py-12 text-center">
-          <p className="text-gray-500">Select a customer to view tasks.</p>
+          <p className="text-gray-500 dark:text-gray-400">Select a customer to view tasks.</p>
         </div>
       )}
 
       {selectedCustomer && loading && <LoadingSpinner />}
 
       {selectedCustomer && error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-          <p className="text-red-700 font-medium">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 dark:bg-red-950/40 dark:border-red-900">
+          <p className="text-red-700 font-medium dark:text-red-400">{error}</p>
         </div>
       )}
 
       {selectedCustomer && !loading && !error && !tasks?.length && (
         <div className="py-8 text-center">
-          <p className="text-gray-500">No tasks found for current customer.</p>
+          <p className="text-gray-500 dark:text-gray-400">No tasks found for current customer.</p>
         </div>
       )}
 
@@ -48,18 +48,18 @@ function Tasks({
           {tasks.map((task) => (
             <li
               key={task.id}
-              className="border border-gray-200 rounded-xl p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+              className="border border-gray-200 rounded-xl p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800"
             >
               <div>
                 <p
                   className={`font-medium ${
-                    task.isDone ? "line-through text-gray-400" : "text-gray-900"
+                    task.isDone ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-900 dark:text-gray-100"
                   }`}
                 >
                   {task.title}
                 </p>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {task.dueDate
                     ? new Date(task.dueDate).toLocaleString()
                     : "No due date"}

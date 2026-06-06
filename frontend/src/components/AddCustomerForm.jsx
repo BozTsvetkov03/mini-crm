@@ -61,12 +61,12 @@ function AddCustomerForm({ onCustomerCreated }) {
   };
 
   return (
-    <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-      <h3 className="mb-5 text-lg font-semibold text-gray-900">Add Customer</h3>
+    <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
+      <h3 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-100">Add Customer</h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="customer-name-input" className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor="customer-name-input" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Name
           </label>
 
@@ -77,17 +77,17 @@ function AddCustomerForm({ onCustomerCreated }) {
             maxLength={50}
             onChange={(e) => setName(e.target.value)}
             placeholder="Terry Davies"
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-emerald-900"
           />
 
-          <div className="mt-1 text-right text-xs text-gray-500">
+          <div className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
             {name.length}/50
           </div>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Company <span className="text-gray-400">(optional)</span>
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Company <span className="text-gray-400 dark:text-gray-500">(optional)</span>
           </label>
           <input
             type="text"
@@ -95,15 +95,15 @@ function AddCustomerForm({ onCustomerCreated }) {
             onChange={(e) => setCompany(e.target.value)}
             maxLength={50}
             placeholder="Company name"
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-emerald-900"
           />
-          <div className="mt-1 text-right text-xs text-gray-500">
+          <div className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
             {company.length}/50
           </div>
         </div>
 
         <div>
-          <label htmlFor="customer-email-input" className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor="customer-email-input" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Email
           </label>
           <input
@@ -113,13 +113,13 @@ function AddCustomerForm({ onCustomerCreated }) {
             maxLength={50}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="terry@temple.os"
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-emerald-900"
           />
-          <div className="mt-1 text-right text-xs text-gray-500">
+          <div className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
             {email.length}/50
           </div>
         </div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">
+        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Country
         </label>
         <CountrySelect value={country} onChange={setCountry} className="focus:border-emerald-400"/>

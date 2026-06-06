@@ -3,16 +3,19 @@ using Backend.Dtos;
 using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Backend.Services;
 
 public class TaskService : ITaskService
 {
     private readonly AppDbContext _db;
+    private readonly IActivityService _activityService;
 
-    public TaskService(AppDbContext db)
+    public TaskService(AppDbContext db, IActivityService activityService)
     {
         _db = db;
+        _activityService = activityService;
     }
 
     public async Task<IEnumerable<TaskItem>> GetTasksByCustomerAsync(Guid customerId, Guid userId)
@@ -38,6 +41,8 @@ public class TaskService : ITaskService
         if (!customerExists)
             return null;
 
+        var now = DateTime.UtcNow;
+
         var task = new TaskItem
         {
             Id = Guid.NewGuid(),
@@ -49,6 +54,19 @@ public class TaskService : ITaskService
 
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
+
+        await _activityService.CreateAsync(new Activity
+        {
+            Id = Guid.NewGuid(),
+            Type = ActivityType.TaskCreated,
+            CustomerId = customerId,
+            CreatedAt = now,
+            PayloadJson = JsonSerializer.Serialize(new
+            {
+                Name = task.Title,
+                DueDate = task.DueDate
+            })
+        });
 
         return task;
     }
@@ -67,6 +85,20 @@ public class TaskService : ITaskService
 
         await _db.SaveChangesAsync();
 
+        await _activityService.CreateAsync(new Activity
+        {
+            Id = Guid.NewGuid(),
+            Type = ActivityType.TaskEdited,
+            CustomerId = task.CustomerId,
+            CreatedAt = DateTime.UtcNow,
+            PayloadJson = JsonSerializer.Serialize(new
+            {
+                Name = task.Title,
+                DueDate = task.DueDate,
+                IsDone = task.IsDone
+            })
+        });
+
         return task;
     }
 
@@ -79,7 +111,21 @@ public class TaskService : ITaskService
             return null;
 
         task.IsDone = true;
+
         await _db.SaveChangesAsync();
+
+        await _activityService.CreateAsync(new Activity
+        {
+            Id = Guid.NewGuid(),
+            Type = ActivityType.TaskCompleted,
+            CustomerId = task.CustomerId,
+            CreatedAt = DateTime.UtcNow,
+            PayloadJson = JsonSerializer.Serialize(new
+            {
+                Name = task.Title,
+                DueDate = task.DueDate
+            })
+        });
 
         return task;
     }

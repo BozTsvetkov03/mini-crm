@@ -1,17 +1,21 @@
 // since you cant apply tailwind styles to react-select directly using className, chatgpt suggested this:
 
-export const selectStyles = {
+// Factory so the control can adapt to light/dark mode. Pass `isDark` from the
+// component (which reads it from ThemeContext) so the styles recompute on toggle.
+export const makeSelectStyles = (isDark = false) => ({
   control: (base, state) => ({
     ...base,
     minHeight: "42px",
     borderRadius: "0.75rem",
-    borderColor: state.isFocused ? "#34d399" : "#d1d5db",
-    boxShadow: state.isFocused ? "0 0 0 2px #d1fae5" : "none",
+    borderColor: state.isFocused ? "#34d399" : isDark ? "#374151" : "#d1d5db",
+    boxShadow: state.isFocused
+      ? `0 0 0 2px ${isDark ? "#064e3b" : "#d1fae5"}`
+      : "none",
     "&:hover": {
-      borderColor: state.isFocused ? "#34d399" : "#d1d5db",
+      borderColor: state.isFocused ? "#34d399" : isDark ? "#374151" : "#d1d5db",
     },
     paddingLeft: "2px",
-    backgroundColor: "white",
+    backgroundColor: isDark ? "#1f2937" : "white",
   }),
   valueContainer: (base) => ({
     ...base,
@@ -21,14 +25,15 @@ export const selectStyles = {
     ...base,
     margin: "0px",
     padding: "0px",
+    color: isDark ? "#f3f4f6" : "#111827",
   }),
   placeholder: (base) => ({
     ...base,
-    color: "#9ca3af",
+    color: isDark ? "#6b7280" : "#9ca3af",
   }),
   singleValue: (base) => ({
     ...base,
-    color: "#111827",
+    color: isDark ? "#f3f4f6" : "#111827",
   }),
   indicatorSeparator: () => ({
     display: "none",
@@ -37,7 +42,7 @@ export const selectStyles = {
     ...base,
     color: "#6b7280",
     "&:hover": {
-      color: "#374151",
+      color: isDark ? "#d1d5db" : "#374151",
     },
   }),
   clearIndicator: (base) => ({
@@ -52,6 +57,7 @@ export const selectStyles = {
     borderRadius: "0.75rem",
     overflow: "hidden",
     zIndex: 20,
+    backgroundColor: isDark ? "#1f2937" : "white",
   }),
   menuList: (base) => ({
     ...base,
@@ -63,9 +69,16 @@ export const selectStyles = {
     backgroundColor: state.isSelected
       ? "#10b981"
       : state.isFocused
-      ? "#ecfdf5"
+      ? isDark
+        ? "#064e3b"
+        : "#ecfdf5"
+      : isDark
+      ? "#1f2937"
       : "white",
-    color: state.isSelected ? "white" : "#111827",
+    color: state.isSelected ? "white" : isDark ? "#f3f4f6" : "#111827",
     cursor: "pointer",
   }),
-};
+});
+
+// Backwards-compatible light styles for any caller that doesn't pass a theme.
+export const selectStyles = makeSelectStyles(false);

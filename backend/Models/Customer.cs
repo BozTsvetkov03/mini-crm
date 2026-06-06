@@ -20,4 +20,5 @@ public class Customer
 
     [JsonIgnore]
     public List<NoteItem> Notes { get; set; } = [];
+    public ICollection<Activity> Activities { get; set; } = new List<Activity>();
 }

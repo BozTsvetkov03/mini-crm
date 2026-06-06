@@ -1,1 +1,63 @@
 @import "tailwindcss";
+
+/* manual dark mode via .dark on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.anim-word {
+  display: inline-block;
+  opacity: 0;
+  animation: word-in 1s ease-out forwards;
+}
+
+.anim-caret {
+  display: inline-block;
+  animation: caret-blink 1s step-end infinite;
+}
+
+.anim-reveal {
+  animation: reveal-up 0.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-word,
+  .anim-reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .anim-caret {
+    animation: none !important;
+  }
+}

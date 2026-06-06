@@ -6,21 +6,26 @@ import { getNotesByCustomerId, deleteNote, updateNote } from "../api/notesApi";
 import Customers from "../components/Customers";
 import Tasks from "../components/Tasks";
 import Notes from "../components/Notes";
+import DisplayActivityList from "../components/DisplayActivityList";
+import { getActivitiesByCustomerId } from "../api/activitiesApi";
 
 export default function DashboardPage() {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [notes, setNotes] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [activeTab, setActiveTab] = useState("tasks");
 
   const [customersLoading, setCustomersLoading] = useState(false);
   const [tasksLoading, setTasksLoading] = useState(false);
   const [notesLoading, setNotesLoading] = useState(false);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
 
   const [customersError, setCustomersError] = useState("");
   const [tasksError, setTasksError] = useState("");
   const [notesError, setNotesError] = useState("");
+  const [activitiesError, setActivitiesError] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -64,6 +69,19 @@ export default function DashboardPage() {
       setNotesLoading(false);
     }
   };
+
+  const loadActivities = async (customerId) => {
+    try {
+      setActivitiesLoading(true);
+      setActivitiesError("");
+      const data = await getActivitiesByCustomerId(customerId);
+      setActivities(data);
+    } catch (error) {
+      setActivitiesError(getApiErrorMessage(error));
+    } finally {
+      setActivitiesLoading(false);
+    }
+  }
 
   const handleSelectCustomer = (customer) => {
     if (selectedCustomer?.id === customer.id) {
@@ -199,11 +217,13 @@ export default function DashboardPage() {
     if (!selectedCustomer) {
       setTasks([]);
       setNotes([]);
+      setActivities([]);
       return;
     }
 
     loadTasks(selectedCustomer.id);
     loadNotes(selectedCustomer.id);
+    loadActivities(selectedCustomer.id);
   }, [selectedCustomer]);
 
   useEffect(() => {
@@ -221,7 +241,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-150">
+    <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-150 transition-colors dark:from-gray-950 dark:to-gray-900">
       <div className="w-[92%] lg:w-[80%] mx-auto pt-16 pb-16">
         <div
           ref={crmRef}
@@ -241,18 +261,18 @@ export default function DashboardPage() {
             onCustomerUpdated={handleCustomerUpdated}
           />
 
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit transition-colors dark:bg-gray-900 dark:border-gray-800">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
               {selectedCustomer ? selectedCustomer.name : "Details"}
             </h2>
 
-            <div className="flex border-b border-gray-200 mb-6">
+            <div className="flex border-b border-gray-200 mb-6 dark:border-gray-800">
               <button
                 onClick={() => setActiveTab("tasks")}
                 className={`px-4 py-2 text-sm font-medium transition -mb-px ${
                   activeTab === "tasks"
                     ? "border-b-2 border-emerald-600 text-emerald-600"
-                    : "text-gray-500 hover:text-gray-700"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 }`}
               >
                 Tasks
@@ -262,10 +282,20 @@ export default function DashboardPage() {
                 className={`px-4 py-2 text-sm font-medium transition -mb-px ${
                   activeTab === "notes"
                     ? "border-b-2 border-amber-600 text-amber-600"
-                    : "text-gray-500 hover:text-gray-700"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 }`}
               >
                 Notes
+              </button>
+              <button
+                onClick={() => setActiveTab("activity")}
+                className={`px-4 py-2 text-sm font-medium transition -mb-px ${
+                  activeTab === "activity"
+                    ? "border-b-2 border-blue-600 text-blue-600"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                }`}
+              >
+                Activity
               </button>
             </div>
 
@@ -292,6 +322,15 @@ export default function DashboardPage() {
                 onNoteDeleted={handleNoteDeleted}
                 onNoteUpdated={handleNoteUpdated}
               />
+            )}
+
+            {activeTab === "activity" && (
+              <DisplayActivityList
+              selectedCustomer = {selectedCustomer}
+              loading={activitiesLoading}
+              error={activitiesError}
+              activities={activities}
+              /> 
             )}
           </div>
         </div>

@@ -3,16 +3,19 @@ using Backend.Dtos;
 using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Backend.Services;
 
 public class NoteService : INoteService
 {
     private readonly AppDbContext _db;
+    private readonly IActivityService _activityService;
 
-    public NoteService(AppDbContext db)
+    public NoteService(AppDbContext db, IActivityService activityService)
     {
         _db = db;
+        _activityService = activityService;
     }
 
     public async Task<IEnumerable<NoteItem>> GetNotesByCustomerAsync(Guid customerId, Guid userId)
@@ -51,6 +54,18 @@ public class NoteService : INoteService
         _db.Notes.Add(note);
         await _db.SaveChangesAsync();
 
+        await _activityService.CreateAsync(new Activity
+        {
+            Id = Guid.NewGuid(),
+            Type = ActivityType.NoteCreated,
+            CustomerId = customerId,
+            CreatedAt = now,
+            PayloadJson = JsonSerializer.Serialize(new
+            {
+                Body = note.Content
+            })
+        });
+
         return note;
     }
 
@@ -67,6 +82,18 @@ public class NoteService : INoteService
 
         await _db.SaveChangesAsync();
 
+        await _activityService.CreateAsync(new Activity
+        {
+            Id = Guid.NewGuid(),
+            Type = ActivityType.NoteEdited,
+            CustomerId = note.CustomerId,
+            CreatedAt = note.UpdatedAt,
+            PayloadJson = JsonSerializer.Serialize(new
+            {
+                Body = note.Content
+            })
+        });
+
         return note;
     }
 
@@ -80,6 +107,9 @@ public class NoteService : INoteService
 
         _db.Notes.Remove(note);
         await _db.SaveChangesAsync();
+
+        // optional: you can also log deletion if you want history
+        // await _activityService.CreateAsync(...)
 
         return true;
     }

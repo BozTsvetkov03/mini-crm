@@ -33,17 +33,17 @@ function AddNoteForm({ selectedCustomer, onNoteCreated }) {
   };
 
   return (
-    <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-      <h3 className="mb-5 text-lg font-semibold text-gray-900">Add Note</h3>
+    <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/30">
+      <h3 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-100">Add Note</h3>
 
       {!selectedCustomer ? (
-        <p className="text-sm text-gray-600 py-6 text-center">
+        <p className="text-sm text-gray-600 py-6 text-center dark:text-gray-400">
           Select a customer to add a note.
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Content
             </label>
             <textarea
@@ -52,9 +52,9 @@ function AddNoteForm({ selectedCustomer, onNoteCreated }) {
               maxLength={500}
               rows={3}
               placeholder="Called customer to discuss renewal..."
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-100 resize-none"
+              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-100 resize-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-amber-900"
             />
-            <div className="mt-1 text-right text-xs text-gray-500">
+            <div className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
               {content.length}/500
             </div>
           </div>

@@ -5,11 +5,11 @@ function NotFound() {
     const navigate = useNavigate('');
 
     return (
-        <div className="h-screen flex flex-col items-center justify-center text-center px-4 bg-gray-50">
-            
-            <h1 className="text-6xl font-bold text-emerald-600">404</h1>
+        <div className="flex h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center transition-colors dark:bg-gray-950">
 
-            <h2 className="mt-4 text-lg text-gray-600 max-w-md">
+            <h1 className="text-6xl font-bold text-emerald-600 dark:text-emerald-400">404</h1>
+
+            <h2 className="mt-4 max-w-md text-lg text-gray-600 dark:text-gray-400">
                 We couldn't find the page you were looking for.
             </h2>
 
