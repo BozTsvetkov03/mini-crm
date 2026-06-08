@@ -38,6 +38,9 @@ function Navbar() {
               <NavLink to="/app" className={navLinkClass}>
                 Dashboard
               </NavLink>
+              <NavLink to="/calendar" className={navLinkClass}>
+                Calendar
+              </NavLink>
               <span className="text-sm text-gray-600 dark:text-gray-400">{user.name}</span>
               <button
                 onClick={handleLogout}

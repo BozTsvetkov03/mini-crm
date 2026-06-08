@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getCustomers, deleteCustomer, updateCustomer } from "../api/customersApi";
 import { getApiErrorMessage } from "../api/apiError";
 import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "../api/tasksApi";
@@ -28,6 +29,8 @@ export default function DashboardPage() {
   const [activitiesError, setActivitiesError] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const crmRef = useRef(null);
 
@@ -212,6 +215,18 @@ export default function DashboardPage() {
   useEffect(() => {
     loadCustomers();
   }, []);
+
+  // Deep-link from the calendar: ?customer=<id> auto-selects that customer
+  // once the list has loaded, then clears the param so it only applies once.
+  useEffect(() => {
+    const customerId = searchParams.get("customer");
+    if (!customerId || customers.length === 0) return;
+
+    const match = customers.find((c) => c.id === customerId);
+    if (match) setSelectedCustomer(match);
+
+    setSearchParams({}, { replace: true });
+  }, [customers, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!selectedCustomer) {

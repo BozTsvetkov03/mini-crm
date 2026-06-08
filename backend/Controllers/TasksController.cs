@@ -21,6 +21,18 @@ public class TasksController : ControllerBase
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+    [HttpGet("calendar")]
+    public async Task<ActionResult<IEnumerable<CalendarTaskDto>>> GetCalendar(
+        [FromQuery] DateTime from, [FromQuery] DateTime to)
+    {
+        if (to <= from)
+            return BadRequest("'to' must be after 'from'");
+
+        var userId = GetUserId();
+        var tasks = await _taskService.GetTasksForCalendarAsync(userId, from, to);
+        return Ok(tasks);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<TaskItem>> GetTaskById(Guid id)
     {

@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/Dashboard";
+import CalendarPage from "./pages/CalendarPage";
 import PublicLayout from "./components/PublicLayout";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
@@ -31,6 +32,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <CalendarPage />
             </ProtectedRoute>
           }
         />

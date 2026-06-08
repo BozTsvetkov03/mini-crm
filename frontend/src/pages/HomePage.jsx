@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Typewriter from "../components/Typewriter";
 import Reveal from "../components/Reveal";
 
 export default function HomePage() {
@@ -8,32 +7,40 @@ export default function HomePage() {
   return (
     <div className="bg-gray-50 text-gray-900 transition-colors dark:bg-gray-950 dark:text-gray-100">
       {/* Hero */}
-      <section className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-6 text-center">
-        <h1 className="mb-6 text-4xl font-bold md:text-6xl">
-          <Typewriter text="Manage your customers. Grow your business." />
-        </h1>
+      <section className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center overflow-hidden px-6 text-center">
+        <div className="hero-aurora" aria-hidden="true" />
 
-        <p className="mb-8 max-w-2xl text-lg text-gray-600 md:text-xl dark:text-gray-400">
-          A lightweight CRM to track customer interactions and stay organized.
-        </p>
+        <div className="relative z-10 flex w-full flex-col items-center">
+          <h1
+            className="anim-rise mb-6 text-4xl font-bold md:text-6xl"
+            style={{ animationDelay: "0s" }}
+          >
+            Manage your customers. Grow your business.
+          </h1>
 
-        <button
-          onClick={() => navigate("/register")}
-          className="rounded-xl bg-emerald-600 px-8 py-3 text-lg font-semibold text-white transition hover:cursor-pointer hover:bg-emerald-400 dark:hover:bg-emerald-500"
-        >
-          Get Started
-        </button>
+          <p
+            className="anim-rise mb-8 max-w-2xl text-lg text-gray-600 md:text-xl dark:text-gray-400"
+            style={{ animationDelay: "0.1s" }}
+          >
+            A lightweight CRM to track customer interactions and stay organized.
+          </p>
 
-        <div className="mt-20 grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3">
-          <Reveal delay={0}>
+          <button
+            onClick={() => navigate("/register")}
+            style={{ animationDelay: "0.2s" }}
+            className="anim-rise rounded-xl bg-emerald-600 px-8 py-3 text-lg font-semibold text-white transition hover:scale-105 hover:cursor-pointer hover:bg-emerald-400 dark:hover:bg-emerald-500"
+          >
+            Get Started
+          </button>
+
+          <div
+            className="anim-rise mt-20 grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3"
+            style={{ animationDelay: "0.3s" }}
+          >
             <Feature title="Simple" text="No bloated features. Just what you need." />
-          </Reveal>
-          <Reveal delay={0.12}>
             <Feature title="Fast" text="Built for speed and efficiency. Used for rapid customer engagement." />
-          </Reveal>
-          <Reveal delay={0.24}>
             <Feature title="Focused" text="Designed to help you stay on top of your customers." />
-          </Reveal>
+          </div>
         </div>
       </section>
 
@@ -51,27 +58,21 @@ export default function HomePage() {
           </Reveal>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <Reveal delay={0}>
-              <Step
-                number="1"
-                title="Add your customers"
-                text="Capture contacts, companies, and countries in one organized place."
-              />
-            </Reveal>
-            <Reveal delay={0.12}>
-              <Step
-                number="2"
-                title="Track tasks & notes"
-                text="Log follow-ups, jot down notes, and never lose context on a conversation."
-              />
-            </Reveal>
-            <Reveal delay={0.24}>
-              <Step
-                number="3"
-                title="Stay on top of activity"
-                text="See a clear timeline of everything that's happened with each customer."
-              />
-            </Reveal>
+            <Step
+              number="1"
+              title="Add your customers"
+              text="Capture contacts, companies, and countries in one organized place."
+            />
+            <Step
+              number="2"
+              title="Track tasks & notes"
+              text="Log follow-ups, jot down notes, and never lose context on a conversation."
+            />
+            <Step
+              number="3"
+              title="Stay on top of activity"
+              text="See a clear timeline of everything that's happened with each customer."
+            />
           </div>
         </div>
       </section>
@@ -92,24 +93,18 @@ export default function HomePage() {
           </Reveal>
 
           <div className="grid grid-cols-1 gap-6">
-            <Reveal delay={0}>
-              <Benefit
-                title="Everything in one view"
-                text="Customers, tasks, notes, and activity together — no tab juggling."
-              />
-            </Reveal>
-            <Reveal delay={0.12}>
-              <Benefit
-                title="Fast search"
-                text="Find any customer instantly by name, email, company, or country."
-              />
-            </Reveal>
-            <Reveal delay={0.24}>
-              <Benefit
-                title="Light & dark"
-                text="A comfortable workspace whether it's day or night."
-              />
-            </Reveal>
+            <Benefit
+              title="Everything in one view"
+              text="Customers, tasks, notes, and activity together — no tab juggling."
+            />
+            <Benefit
+              title="Fast search"
+              text="Find any customer instantly by name, email, company, or country."
+            />
+            <Benefit
+              title="Light & dark"
+              text="A comfortable workspace whether it's day or night."
+            />
           </div>
         </div>
       </section>
@@ -127,7 +122,7 @@ export default function HomePage() {
             </p>
             <button
               onClick={() => navigate("/register")}
-              className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-emerald-700 transition hover:cursor-pointer hover:bg-emerald-50"
+              className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-emerald-700 transition hover:scale-105 hover:cursor-pointer hover:bg-emerald-50"
             >
               Get Started
             </button>
@@ -140,7 +135,7 @@ export default function HomePage() {
 
 function Feature({ title, text }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-2xl border border-emerald-200/50 bg-emerald-100/30 p-6 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md dark:border-emerald-800/40 dark:bg-emerald-900/20 dark:hover:border-emerald-700">
       <h3 className="mb-2 text-xl font-semibold">{title}</h3>
       <p className="text-gray-600 dark:text-gray-400">{text}</p>
     </div>
@@ -149,7 +144,7 @@ function Feature({ title, text }) {
 
 function Step({ number, title, text }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-emerald-700">
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
         {number}
       </div>
@@ -161,7 +156,7 @@ function Step({ number, title, text }) {
 
 function Benefit({ title, text }) {
   return (
-    <div className="rounded-2xl border border-gray-200 p-5 transition-colors dark:border-gray-800">
+    <div className="rounded-2xl border border-gray-200 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md dark:border-gray-800 dark:hover:border-emerald-700">
       <h3 className="mb-1 font-semibold text-emerald-700 dark:text-emerald-400">
         {title}
       </h3>

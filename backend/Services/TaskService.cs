@@ -27,6 +27,26 @@ public class TaskService : ITaskService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<CalendarTaskDto>> GetTasksForCalendarAsync(Guid userId, DateTime from, DateTime to)
+    {
+        return await _db.Tasks
+            .Where(t => t.Customer.OwnerId == userId
+                && t.DueDate != null
+                && t.DueDate >= from
+                && t.DueDate < to)
+            .OrderBy(t => t.DueDate)
+            .Select(t => new CalendarTaskDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                DueDate = t.DueDate,
+                IsDone = t.IsDone,
+                CustomerId = t.CustomerId,
+                CustomerName = t.Customer.Name
+            })
+            .ToListAsync();
+    }
+
     public async Task<TaskItem?> GetTaskByIdAsync(Guid id, Guid userId)
     {
         return await _db.Tasks
