@@ -15,9 +15,16 @@ function Customers({
   onSearchChange,
   totalCustomersCount,
   onCustomerDeleted,
-  onCustomerUpdated
+  onCustomerUpdated,
+  limit,
 }) {
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+
+  const visibleCustomers =
+    limit && !showAll ? customers.slice(0, limit) : customers;
+  const hasMore = limit && !showAll && customers.length > limit;
+
   const hasCustomers = customers.length > 0;
   const showEmptyState = !loading && !error && !hasCustomers;
   const showCustomers = !loading && !error && hasCustomers;
@@ -92,7 +99,7 @@ function Customers({
       {showCustomers && (
         <>
           <div className="mt-6 space-y-3 md:hidden">
-            {customers.map((customer) => {
+            {visibleCustomers.map((customer) => {
               const isSelected = selectedCustomer?.id === customer.id;
 
               return (
@@ -155,7 +162,7 @@ function Customers({
               </thead>
 
               <tbody>
-                {customers.map((customer) => {
+                {visibleCustomers.map((customer) => {
                   const isSelected = selectedCustomer?.id === customer.id;
 
                   return (
@@ -196,6 +203,17 @@ function Customers({
             </table>
           </div>
         </>
+      )}
+
+      {hasMore && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowAll(true)}
+            className="rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+          >
+            Show all ({customers.length})
+          </button>
+        </div>
       )}
 
       <EditCustomerModal

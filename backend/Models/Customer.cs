@@ -10,6 +10,7 @@ public class Customer
     public string Country { get; set; } = string.Empty;
     public string? Company { get; set; }
 
+    public DateTime CreatedAt { get; set; }
     public Guid OwnerId { get; set; }
 
     [JsonIgnore]

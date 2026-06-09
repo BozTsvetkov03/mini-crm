@@ -15,6 +15,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<NoteItem> Notes => Set<NoteItem>();
     public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<UserSettings> UserSettings => Set<UserSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +36,28 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         modelBuilder.Entity<TaskItem>()
             .Property(t => t.DueDate)
             .HasColumnType("timestamp without time zone");
+
+        modelBuilder.Entity<TaskItem>()
+            .Property(t => t.CompletedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<Customer>()
+            .Property(c => c.CreatedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<UserSettings>()
+            .HasOne(x => x.User)
+            .WithOne()
+            .HasForeignKey<UserSettings>(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserSettings>()
+            .Property(s => s.CreatedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<UserSettings>()
+            .Property(s => s.UpdatedAt)
+            .HasColumnType("timestamp with time zone");
 
         modelBuilder.Entity<NoteItem>()
             .HasOne(n => n.Customer)

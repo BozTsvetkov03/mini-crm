@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     getMe()
-      .then(setUser)
+      .then((data) => setUser(data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);

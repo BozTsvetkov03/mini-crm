@@ -134,6 +134,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
 
 var app = builder.Build();
 

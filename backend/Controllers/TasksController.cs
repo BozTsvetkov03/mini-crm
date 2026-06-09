@@ -21,6 +21,22 @@ public class TasksController : ControllerBase
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+    [HttpGet("completed")]
+    public async Task<ActionResult<IEnumerable<TaskListItemDto>>> GetCompleted()
+    {
+        var userId = GetUserId();
+        var tasks = await _taskService.GetCompletedTasksAsync(userId);
+        return Ok(tasks);
+    }
+
+    [HttpGet("due")]
+    public async Task<ActionResult<IEnumerable<TaskListItemDto>>> GetDue()
+    {
+        var userId = GetUserId();
+        var tasks = await _taskService.GetDueTasksAsync(userId);
+        return Ok(tasks);
+    }
+
     [HttpGet("calendar")]
     public async Task<ActionResult<IEnumerable<CalendarTaskDto>>> GetCalendar(
         [FromQuery] DateTime from, [FromQuery] DateTime to)

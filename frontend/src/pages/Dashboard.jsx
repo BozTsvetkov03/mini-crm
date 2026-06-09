@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { getCustomers, deleteCustomer, updateCustomer } from "../api/customersApi";
 import { getApiErrorMessage } from "../api/apiError";
-import { completeTask, getTasksByCustomerId, deleteTask, updateTask } from "../api/tasksApi";
+import { completeTask, getTasksByCustomerId, deleteTask, updateTask, getCompletedTasks, getDueTasks } from "../api/tasksApi";
 import { getNotesByCustomerId, deleteNote, updateNote } from "../api/notesApi";
 import Customers from "../components/Customers";
 import Tasks from "../components/Tasks";
@@ -11,12 +11,17 @@ import DisplayActivityList from "../components/DisplayActivityList";
 import { getActivitiesByCustomerId } from "../api/activitiesApi";
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
+
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [notes, setNotes] = useState([]);
   const [activities, setActivities] = useState([]);
   const [activeTab, setActiveTab] = useState("tasks");
+
+  const [completedCount, setCompletedCount] = useState(null);
+  const [dueCount, setDueCount] = useState(null);
 
   const [customersLoading, setCustomersLoading] = useState(false);
   const [tasksLoading, setTasksLoading] = useState(false);
@@ -44,6 +49,16 @@ export default function DashboardPage() {
       setCustomersError(getApiErrorMessage(error));
     } finally {
       setCustomersLoading(false);
+    }
+  };
+
+  const loadTaskCounts = async () => {
+    try {
+      const [completed, due] = await Promise.all([getCompletedTasks(), getDueTasks()]);
+      setCompletedCount(completed.length);
+      setDueCount(due.length);
+    } catch {
+      // counts are non-critical; silently ignore errors
     }
   };
 
@@ -99,8 +114,10 @@ export default function DashboardPage() {
   };
 
   const handleTaskCreated = async () => {
-    if (!selectedCustomer) return;
-    await loadTasks(selectedCustomer.id);
+    if (selectedCustomer) {
+      await loadTasks(selectedCustomer.id);
+    }
+    await loadTaskCounts();
   };
 
   const handleTaskCompleted = async (taskId) => {
@@ -109,6 +126,7 @@ export default function DashboardPage() {
       if (selectedCustomer) {
         await loadTasks(selectedCustomer.id);
       }
+      await loadTaskCounts();
     } catch (error) {
       setTasksError(getApiErrorMessage(error));
     }
@@ -120,6 +138,7 @@ export default function DashboardPage() {
       if (selectedCustomer) {
         await loadTasks(selectedCustomer.id);
       }
+      await loadTaskCounts();
     } catch (error) {
       setTasksError(getApiErrorMessage(error));
     }
@@ -132,6 +151,7 @@ export default function DashboardPage() {
         const refreshedTasks = await getTasksByCustomerId(selectedCustomer.id);
         setTasks(refreshedTasks);
       }
+      await loadTaskCounts();
     } catch (error) {
       console.error("Failed to update task:", error);
       throw error;
@@ -214,6 +234,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadCustomers();
+    loadTaskCounts();
   }, []);
 
   // Deep-link from the calendar: ?customer=<id> auto-selects that customer
@@ -258,6 +279,29 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-150 transition-colors dark:from-gray-950 dark:to-gray-900">
       <div className="w-[92%] lg:w-[80%] mx-auto pt-16 pb-16">
+        {/* Summary cards */}
+        <div className="mb-8 grid grid-cols-2 gap-4">
+          <button
+            onClick={() => navigate("/tasks/completed")}
+            className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-md transition hover:border-emerald-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900 dark:hover:border-emerald-700"
+          >
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed tasks</p>
+            <p className="mt-1 text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+              {completedCount === null ? "—" : completedCount}
+            </p>
+          </button>
+
+          <button
+            onClick={() => navigate("/tasks/due")}
+            className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-md transition hover:border-amber-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900 dark:hover:border-amber-700"
+          >
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Due tasks</p>
+            <p className="mt-1 text-3xl font-bold text-amber-600 dark:text-amber-400">
+              {dueCount === null ? "—" : dueCount}
+            </p>
+          </button>
+        </div>
+
         <div
           ref={crmRef}
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start"
@@ -274,6 +318,7 @@ export default function DashboardPage() {
             totalCustomersCount={customers.length}
             onCustomerDeleted={handleCustomerDeleted}
             onCustomerUpdated={handleCustomerUpdated}
+            limit={10}
           />
 
           <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit transition-colors dark:bg-gray-900 dark:border-gray-800">

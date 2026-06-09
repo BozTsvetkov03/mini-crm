@@ -12,4 +12,6 @@ public interface ITaskService
     Task<TaskItem?> UpdateTaskAsync(Guid id, UpdateTaskDto dto, Guid userId);
     Task<TaskItem?> CompleteTaskAsync(Guid id, Guid userId);
     Task<bool> DeleteTaskAsync(Guid id, Guid userId);
+    Task<IEnumerable<TaskListItemDto>> GetCompletedTasksAsync(Guid userId);
+    Task<IEnumerable<TaskListItemDto>> GetDueTasksAsync(Guid userId);
 }

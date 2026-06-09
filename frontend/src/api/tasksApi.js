@@ -24,3 +24,13 @@ export async function updateTask(taskId, taskData) {
     const response = await http.put(`/tasks/${taskId}`, taskData);
     return response.data;
 }
+
+export async function getCompletedTasks() {
+    const response = await http.get('/tasks/completed');
+    return response.data;
+}
+
+export async function getDueTasks() {
+    const response = await http.get('/tasks/due');
+    return response.data;
+}

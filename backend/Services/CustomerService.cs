@@ -19,7 +19,7 @@ public class CustomerService : ICustomerService
     {
         return await _db.Customers
             .Where(c => c.OwnerId == userId)
-            .OrderBy(c => c.Name)
+            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
 
@@ -46,7 +46,8 @@ public class CustomerService : ICustomerService
             Email = email,
             Country = dto.Country.Trim(),
             Company = dto.Company?.Trim(),
-            OwnerId = userId
+            OwnerId = userId,
+            CreatedAt = DateTime.UtcNow
         };
 
         _db.Customers.Add(customer);

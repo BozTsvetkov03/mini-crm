@@ -99,9 +99,15 @@ public class TaskService : ITaskService
         if (task == null)
             return null;
 
+        var wasDone = task.IsDone;
         task.Title = dto.Title.Trim();
         task.DueDate = dto.DueDate;
         task.IsDone = dto.IsDone;
+
+        if (!wasDone && dto.IsDone)
+            task.CompletedAt = DateTime.UtcNow;
+        else if (wasDone && !dto.IsDone)
+            task.CompletedAt = null;
 
         await _db.SaveChangesAsync();
 
@@ -131,6 +137,7 @@ public class TaskService : ITaskService
             return null;
 
         task.IsDone = true;
+        task.CompletedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
 
@@ -162,5 +169,41 @@ public class TaskService : ITaskService
         await _db.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<IEnumerable<TaskListItemDto>> GetCompletedTasksAsync(Guid userId)
+    {
+        return await _db.Tasks
+            .Where(t => t.IsDone && t.Customer.OwnerId == userId)
+            .OrderByDescending(t => t.CompletedAt)
+            .Select(t => new TaskListItemDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                DueDate = t.DueDate,
+                IsDone = t.IsDone,
+                CompletedAt = t.CompletedAt,
+                CustomerId = t.CustomerId,
+                CustomerName = t.Customer.Name
+            })
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<TaskListItemDto>> GetDueTasksAsync(Guid userId)
+    {
+        return await _db.Tasks
+            .Where(t => !t.IsDone && t.DueDate != null && t.Customer.OwnerId == userId)
+            .OrderBy(t => t.DueDate)
+            .Select(t => new TaskListItemDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                DueDate = t.DueDate,
+                IsDone = t.IsDone,
+                CompletedAt = t.CompletedAt,
+                CustomerId = t.CustomerId,
+                CustomerName = t.Customer.Name
+            })
+            .ToListAsync();
     }
 }

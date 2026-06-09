@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Backend.Dtos;
 using Backend.Models;
@@ -23,7 +24,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [IgnoreAntiforgeryToken]
-    [EnableRateLimiting("auth")]
+    // [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
@@ -73,7 +74,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [IgnoreAntiforgeryToken]
-    [EnableRateLimiting("auth")]
+    // [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
@@ -114,6 +115,29 @@ public class AuthController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
             return Unauthorized();
+
+        return Ok(new { user.Id, user.Name, user.Email });
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return BadRequest("Name is required");
+
+        if (dto.Name.Trim().Length > 50)
+            return BadRequest("Name must be 50 characters or less");
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Unauthorized();
+
+        user.Name = dto.Name.Trim();
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+            return BadRequest(result.Errors.First().Description);
 
         return Ok(new { user.Id, user.Name, user.Email });
     }
