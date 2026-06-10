@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -167,6 +167,7 @@ namespace backend.Migrations
                     Email = table.Column<string>(type: "text", nullable: false),
                     Country = table.Column<string>(type: "text", nullable: false),
                     Company = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -175,6 +176,27 @@ namespace backend.Migrations
                     table.ForeignKey(
                         name: "FK_Customers_AspNetUsers_OwnerId",
                         column: x => x.OwnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserSettings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Theme = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserSettings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserSettings_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -230,6 +252,7 @@ namespace backend.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     DueDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     IsDone = table.Column<bool>(type: "boolean", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CustomerId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -299,6 +322,12 @@ namespace backend.Migrations
                 name: "IX_Tasks_CustomerId",
                 table: "Tasks",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSettings_UserId",
+                table: "UserSettings",
+                column: "UserId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -327,6 +356,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tasks");
+
+            migrationBuilder.DropTable(
+                name: "UserSettings");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

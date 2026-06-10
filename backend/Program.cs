@@ -4,6 +4,7 @@ using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -70,8 +71,10 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
+// Keys live in Postgres so they survive Render's ephemeral filesystem;
+// losing them on deploy would invalidate every auth cookie and antiforgery token
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")))
+    .PersistKeysToDbContext<AppDbContext>()
     .SetApplicationName("crm-mini");
 
 builder.Services.AddControllersWithViews(options =>
@@ -168,6 +171,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Serve the built SPA from wwwroot; placed before the rate limiter so
+// static assets don't consume the per-IP request budget
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseCors("frontend");
 
 app.UseAuthentication();
@@ -199,5 +207,8 @@ app.Use(async (context, next) =>
 app.UseAuthorization();
 
 app.MapControllers();
+
+// SPA fallback: any non-API, non-file route gets index.html for client-side routing
+app.MapFallbackToFile("index.html");
 
 app.Run();
