@@ -27,10 +27,13 @@ dist-ssr
 # env
 frontend/.env
 
-# backend
-backend/bin
-backend/obj
+# backend / .NET build output (any project, including tests)
+**/bin/
+**/obj/
 backend/appsettings.Development.json
 backend/keys/
+
+# local tooling
+.claude/
 
 

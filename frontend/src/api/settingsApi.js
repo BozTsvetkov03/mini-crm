@@ -10,6 +10,16 @@ export async function updateTheme(theme) {
   return response.data;
 }
 
+export async function updateReminderSettings({ emailRemindersEnabled, remindDaysBefore, digestHour, timeZone }) {
+  const response = await http.put("/user-settings", {
+    emailRemindersEnabled,
+    remindDaysBefore,
+    digestHour,
+    timeZone,
+  });
+  return response.data;
+}
+
 export async function updateProfile(name) {
   const response = await http.put("/auth/profile", { name });
   return response.data;

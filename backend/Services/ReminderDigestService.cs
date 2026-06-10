@@ -1,0 +1,111 @@
+using Backend.Data;
+using Backend.Services.Interfaces;
+using Backend.Services.Reminders;
+using Microsoft.EntityFrameworkCore;
+
+namespace Backend.Services;
+
+public class ReminderDigestService : IReminderDigestService
+{
+    private readonly AppDbContext _db;
+    private readonly IEmailSender _email;
+    private readonly TimeProvider _clock;
+    private readonly ILogger<ReminderDigestService> _logger;
+
+    public ReminderDigestService(
+        AppDbContext db,
+        IEmailSender email,
+        TimeProvider clock,
+        ILogger<ReminderDigestService> logger)
+    {
+        _db = db;
+        _email = email;
+        _clock = clock;
+        _logger = logger;
+    }
+
+    public async Task<DigestRunResult> RunAsync(CancellationToken ct = default)
+    {
+        var utcNow = _clock.GetUtcNow().UtcDateTime;
+        var sent = 0;
+        var tasksIncluded = 0;
+        var errors = new List<string>();
+
+        var candidates = await _db.UserSettings
+            .Where(s => s.EmailRemindersEnabled)
+            .Join(_db.Users,
+                s => s.UserId,
+                u => u.Id,
+                (s, u) => new { Settings = s, u.Id, u.Email, u.Name })
+            .ToListAsync(ct);
+
+        foreach (var user in candidates)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(user.Email))
+                continue;
+
+            var dueDate = DigestTiming.DueLocalDate(
+                user.Settings.TimeZone, user.Settings.DigestHour, utcNow);
+            if (dueDate is not DateOnly localToday)
+                continue;
+
+            var alreadySent = await _db.ReminderLogs
+                .AnyAsync(r => r.UserId == user.Id && r.DigestDate == localToday, ct);
+            if (alreadySent)
+                continue;
+
+            // DueDate is user wall-clock ("timestamp without time zone"); compare
+            // against end of the last day inside the reminder window, kept Unspecified
+            var windowEnd = localToday
+                .AddDays(user.Settings.RemindDaysBefore)
+                .ToDateTime(TimeOnly.MaxValue, DateTimeKind.Unspecified);
+
+            var tasks = await _db.Tasks
+                .Where(t => t.Customer.OwnerId == user.Id
+                    && !t.IsDone
+                    && t.DueDate != null
+                    && t.DueDate <= windowEnd)
+                .OrderBy(t => t.DueDate)
+                .Select(t => new ReminderTaskLine(
+                    t.Title,
+                    t.Customer.Name,
+                    DateOnly.FromDateTime(t.DueDate!.Value)))
+                .ToListAsync(ct);
+
+            if (tasks.Count == 0)
+                continue;
+
+            try
+            {
+                var (subject, html) = ReminderEmailComposer.Compose(user.Name, localToday, tasks);
+                await _email.SendAsync(user.Email, subject, html, ct);
+
+                _db.ReminderLogs.Add(new Models.ReminderLog
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    DigestDate = localToday,
+                    SentAt = utcNow,
+                    TaskCount = tasks.Count
+                });
+                await _db.SaveChangesAsync(ct);
+
+                sent++;
+                tasksIncluded += tasks.Count;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "Failed to send reminder digest to user {UserId}", user.Id);
+                errors.Add($"user {user.Id}: {ex.Message}");
+            }
+        }
+
+        _logger.LogInformation(
+            "Reminder digest run: {Checked} candidates, {Sent} digests sent, {Tasks} tasks included",
+            candidates.Count, sent, tasksIncluded);
+
+        return new DigestRunResult(candidates.Count, sent, tasksIncluded, errors);
+    }
+}

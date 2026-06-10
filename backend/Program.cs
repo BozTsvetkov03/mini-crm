@@ -133,6 +133,11 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+builder.Services.Configure<Backend.Options.EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IReminderDigestService, ReminderDigestService>();
+
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<INoteService, NoteService>();

@@ -1,0 +1,22 @@
+name: Send task reminders
+
+on:
+  schedule:
+    # Every 30 minutes (UTC). The endpoint is idempotent — each user gets at
+    # most one digest per local day — so frequent firing is safe and lets the
+    # digest land shortly after each user's chosen hour.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: # manual "Run workflow" button for testing
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reminder endpoint
+        # Generous timeout + retries because Render's free tier cold-starts
+        # (~50s) after idle; --retry covers connection errors and 5xx.
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --max-time 180 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST "https://mini-crm-0d2h.onrender.com/api/jobs/send-reminders" \
+            -H "X-Cron-Secret: ${{ secrets.REMINDER_CRON_SECRET }}"

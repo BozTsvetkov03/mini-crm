@@ -32,7 +32,14 @@ public class UserSettingsController : ControllerBase
     public async Task<ActionResult<UserSettingsDto>> UpdateSettings(UpdateUserSettingsDto dto)
     {
         var userId = GetUserId();
-        var settings = await _userSettingsService.UpdateSettingsAsync(userId, dto);
-        return Ok(settings);
+        try
+        {
+            var settings = await _userSettingsService.UpdateSettingsAsync(userId, dto);
+            return Ok(settings);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

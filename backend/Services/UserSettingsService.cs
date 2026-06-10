@@ -17,28 +17,30 @@ public class UserSettingsService : IUserSettingsService
 
     public async Task<UserSettingsDto> GetSettingsAsync(Guid userId)
     {
-        var settings = await _db.UserSettings
-            .FirstOrDefaultAsync(s => s.UserId == userId);
-
-        if (settings == null)
-        {
-            var now = DateTime.UtcNow;
-            settings = new UserSettings
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                Theme = "light",
-                CreatedAt = now,
-                UpdatedAt = now
-            };
-            _db.UserSettings.Add(settings);
-            await _db.SaveChangesAsync();
-        }
-
-        return new UserSettingsDto { Theme = settings.Theme };
+        var settings = await GetOrCreateAsync(userId);
+        return ToDto(settings);
     }
 
     public async Task<UserSettingsDto> UpdateSettingsAsync(Guid userId, UpdateUserSettingsDto dto)
+    {
+        if (dto.TimeZone != null && !TimeZoneInfo.TryFindSystemTimeZoneById(dto.TimeZone, out _))
+            throw new ArgumentException($"Unknown time zone '{dto.TimeZone}'.");
+
+        var settings = await GetOrCreateAsync(userId);
+
+        if (dto.Theme != null) settings.Theme = dto.Theme;
+        if (dto.EmailRemindersEnabled.HasValue) settings.EmailRemindersEnabled = dto.EmailRemindersEnabled.Value;
+        if (dto.RemindDaysBefore.HasValue) settings.RemindDaysBefore = dto.RemindDaysBefore.Value;
+        if (dto.DigestHour.HasValue) settings.DigestHour = dto.DigestHour.Value;
+        if (dto.TimeZone != null) settings.TimeZone = dto.TimeZone;
+        settings.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return ToDto(settings);
+    }
+
+    private async Task<UserSettings> GetOrCreateAsync(Guid userId)
     {
         var settings = await _db.UserSettings
             .FirstOrDefaultAsync(s => s.UserId == userId);
@@ -50,20 +52,22 @@ public class UserSettingsService : IUserSettingsService
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                Theme = dto.Theme,
                 CreatedAt = now,
                 UpdatedAt = now
             };
             _db.UserSettings.Add(settings);
-        }
-        else
-        {
-            settings.Theme = dto.Theme;
-            settings.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
         }
 
-        await _db.SaveChangesAsync();
-
-        return new UserSettingsDto { Theme = settings.Theme };
+        return settings;
     }
+
+    private static UserSettingsDto ToDto(UserSettings settings) => new()
+    {
+        Theme = settings.Theme,
+        EmailRemindersEnabled = settings.EmailRemindersEnabled,
+        RemindDaysBefore = settings.RemindDaysBefore,
+        DigestHour = settings.DigestHour,
+        TimeZone = settings.TimeZone
+    };
 }

@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
     public DbSet<NoteItem> Notes => Set<NoteItem>();
     public DbSet<Activity> Activities => Set<Activity>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<ReminderLog> ReminderLogs => Set<ReminderLog>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -73,6 +74,21 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
 
         modelBuilder.Entity<NoteItem>()
             .Property(n => n.UpdatedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<ReminderLog>()
+            .HasOne(r => r.User)
+            .WithMany()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // DB-level idempotency backstop: at most one digest per user per local day
+        modelBuilder.Entity<ReminderLog>()
+            .HasIndex(r => new { r.UserId, r.DigestDate })
+            .IsUnique();
+
+        modelBuilder.Entity<ReminderLog>()
+            .Property(r => r.SentAt)
             .HasColumnType("timestamp with time zone");
 
         modelBuilder.Entity<Activity>()

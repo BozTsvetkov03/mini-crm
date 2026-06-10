@@ -1,0 +1,10 @@
+# Local dev dependencies. Start with:
+#   docker compose -f docker-compose.dev.yml up -d
+services:
+  mailpit:
+    image: axllent/mailpit
+    container_name: crm-mailpit
+    ports:
+      - "1025:1025" # SMTP — backend dev config points here
+      - "8025:8025" # Web UI + API: http://localhost:8025
+    restart: unless-stopped
