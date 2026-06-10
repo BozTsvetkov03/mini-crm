@@ -22,8 +22,13 @@ public class SmtpEmailSender : IEmailSender
             throw new InvalidOperationException(
                 "Email is not configured. Set Email__Host and Email__FromAddress.");
 
+        if (!MailboxAddress.TryParse(_options.FromAddress, out var from))
+            throw new InvalidOperationException(
+                $"Email__FromAddress ('{_options.FromAddress}') is not a valid email address.");
+        from.Name = _options.FromName;
+
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(_options.FromName, _options.FromAddress));
+        message.From.Add(from);
         message.To.Add(MailboxAddress.Parse(toEmail));
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
