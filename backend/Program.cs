@@ -135,7 +135,14 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.Configure<Backend.Options.EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+// Prefer Resend's HTTPS API when a key is configured (Render blocks outbound
+// SMTP); SMTP remains the dev path so Mailpit keeps working locally
+if (!string.IsNullOrWhiteSpace(builder.Configuration["Email:ResendApiKey"]))
+    builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
+else
+    builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+
 builder.Services.AddScoped<IReminderDigestService, ReminderDigestService>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
