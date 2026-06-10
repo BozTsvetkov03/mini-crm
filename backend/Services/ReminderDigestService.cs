@@ -2,6 +2,7 @@ using Backend.Data;
 using Backend.Services.Interfaces;
 using Backend.Services.Reminders;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 
 namespace Backend.Services;
 
@@ -45,6 +46,16 @@ public class ReminderDigestService : IReminderDigestService
 
             if (string.IsNullOrWhiteSpace(user.Email))
                 continue;
+
+            // Registration validates strictly now, but accounts created before that
+            // fix may still hold unsendable addresses — skip instead of crashing
+            if (!MailboxAddress.TryParse(user.Email, out _))
+            {
+                _logger.LogWarning(
+                    "Skipping reminder digest for user {UserId}: stored email is not a valid address", user.Id);
+                errors.Add($"user {user.Id}: account email is not a valid address");
+                continue;
+            }
 
             var dueDate = DigestTiming.DueLocalDate(
                 user.Settings.TimeZone, user.Settings.DigestHour, utcNow);
@@ -98,7 +109,7 @@ public class ReminderDigestService : IReminderDigestService
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "Failed to send reminder digest to user {UserId}", user.Id);
-                errors.Add($"user {user.Id}: {ex.Message}");
+                errors.Add($"user {user.Id}: {ex.GetType().Name}: {ex.Message}");
             }
         }
 

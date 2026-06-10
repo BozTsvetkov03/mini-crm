@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Backend.Dtos;
 using Backend.Models;
+using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +45,7 @@ public class AuthController : ControllerBase
         if (dto.Password.Length > 128)
             return BadRequest("Password must be 128 characters or less");
 
-        if (!IsValidEmail(dto.Email.Trim()))
+        if (!EmailValidator.IsValid(dto.Email.Trim()))
             return BadRequest("Invalid email");
 
         var user = new User
@@ -140,10 +140,5 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors.First().Description);
 
         return Ok(new { user.Id, user.Name, user.Email });
-    }
-
-    private static bool IsValidEmail(string email)
-    {
-        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$");
     }
 }
