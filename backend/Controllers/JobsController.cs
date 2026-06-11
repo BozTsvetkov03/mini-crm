@@ -24,7 +24,7 @@ public class JobsController : ControllerBase
     }
 
     [HttpPost("send-reminders")]
-    public async Task<IActionResult> SendReminders(CancellationToken ct)
+    public async Task<IActionResult> SendReminders([FromQuery] bool force, CancellationToken ct)
     {
         var secret = _config["Jobs:CronSecret"];
         if (string.IsNullOrWhiteSpace(secret))
@@ -36,7 +36,7 @@ public class JobsController : ControllerBase
                 Encoding.UTF8.GetBytes(provided)))
             return Unauthorized();
 
-        var result = await _digestService.RunAsync(ct);
+        var result = await _digestService.RunAsync(force, ct);
         return Ok(result);
     }
 }

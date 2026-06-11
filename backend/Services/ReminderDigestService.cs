@@ -30,12 +30,13 @@ public class ReminderDigestService : IReminderDigestService
         _appBaseUrl = emailOptions.Value.AppBaseUrl;
     }
 
-    public async Task<DigestRunResult> RunAsync(CancellationToken ct = default)
+    public async Task<DigestRunResult> RunAsync(bool force = false, CancellationToken ct = default)
     {
         var utcNow = _clock.GetUtcNow().UtcDateTime;
         var sent = 0;
         var tasksIncluded = 0;
         var errors = new List<string>();
+        var skipped = new List<string>();
 
         var candidates = await _db.UserSettings
             .Where(s => s.EmailRemindersEnabled)
@@ -62,15 +63,31 @@ public class ReminderDigestService : IReminderDigestService
                 continue;
             }
 
-            var dueDate = DigestTiming.DueLocalDate(
-                user.Settings.TimeZone, user.Settings.DigestHour, utcNow);
-            if (dueDate is not DateOnly localToday)
+            DateOnly localToday;
+            if (DigestTiming.DueLocalDate(
+                    user.Settings.TimeZone, user.Settings.DigestHour, utcNow) is DateOnly due)
+            {
+                localToday = due;
+            }
+            else if (force)
+            {
+                var tz = DigestTiming.ResolveTimeZone(user.Settings.TimeZone);
+                localToday = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(utcNow, tz));
+            }
+            else
+            {
+                skipped.Add($"user {user.Id}: digest hour ({user.Settings.DigestHour}:00 {user.Settings.TimeZone}) not reached yet");
                 continue;
+            }
 
-            var alreadySent = await _db.ReminderLogs
-                .AnyAsync(r => r.UserId == user.Id && r.DigestDate == localToday, ct);
-            if (alreadySent)
+            // Single row per (UserId, DigestDate) — unique index; force updates it
+            var existingLog = await _db.ReminderLogs
+                .FirstOrDefaultAsync(r => r.UserId == user.Id && r.DigestDate == localToday, ct);
+            if (existingLog is not null && !force)
+            {
+                skipped.Add($"user {user.Id}: digest for {localToday:yyyy-MM-dd} already sent at {existingLog.SentAt:u}");
                 continue;
+            }
 
             // DueDate is user wall-clock ("timestamp without time zone"); compare
             // against end of the last day inside the reminder window, kept Unspecified
@@ -91,21 +108,32 @@ public class ReminderDigestService : IReminderDigestService
                 .ToListAsync(ct);
 
             if (tasks.Count == 0)
+            {
+                skipped.Add($"user {user.Id}: no open tasks due on or before {DateOnly.FromDateTime(windowEnd):yyyy-MM-dd}");
                 continue;
+            }
 
             try
             {
                 var (subject, html) = ReminderEmailComposer.Compose(user.Name, localToday, tasks, _appBaseUrl);
                 await _email.SendAsync(user.Email, subject, html, ct);
 
-                _db.ReminderLogs.Add(new Models.ReminderLog
+                if (existingLog is not null)
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = user.Id,
-                    DigestDate = localToday,
-                    SentAt = utcNow,
-                    TaskCount = tasks.Count
-                });
+                    existingLog.SentAt = utcNow;
+                    existingLog.TaskCount = tasks.Count;
+                }
+                else
+                {
+                    _db.ReminderLogs.Add(new Models.ReminderLog
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = user.Id,
+                        DigestDate = localToday,
+                        SentAt = utcNow,
+                        TaskCount = tasks.Count
+                    });
+                }
                 await _db.SaveChangesAsync(ct);
 
                 sent++;
@@ -122,6 +150,6 @@ public class ReminderDigestService : IReminderDigestService
             "Reminder digest run: {Checked} candidates, {Sent} digests sent, {Tasks} tasks included",
             candidates.Count, sent, tasksIncluded);
 
-        return new DigestRunResult(candidates.Count, sent, tasksIncluded, errors);
+        return new DigestRunResult(candidates.Count, sent, tasksIncluded, errors, skipped);
     }
 }
