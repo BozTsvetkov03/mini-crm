@@ -84,6 +84,27 @@ public class ReminderEmailComposerTests
     }
 
     [Fact]
+    public void AppUrl_RendersTasksButton()
+    {
+        var (_, html) = ReminderEmailComposer.Compose("Boz", Today,
+        [
+            new ReminderTaskLine("A", "C", Today),
+        ], appUrl: "https://crm.example.com/");
+        Assert.Contains("href=\"https://crm.example.com/tasks/due\"", html);
+        Assert.Contains("View your tasks", html);
+    }
+
+    [Fact]
+    public void NoAppUrl_OmitsTasksButton()
+    {
+        var (_, html) = ReminderEmailComposer.Compose("Boz", Today,
+        [
+            new ReminderTaskLine("A", "C", Today),
+        ]);
+        Assert.DoesNotContain("View your tasks", html);
+    }
+
+    [Fact]
     public void HtmlInUserContent_IsEncoded()
     {
         var (_, html) = ReminderEmailComposer.Compose("<b>Boz</b>", Today,

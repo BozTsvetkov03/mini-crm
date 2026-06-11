@@ -1,7 +1,9 @@
 using Backend.Data;
+using Backend.Options;
 using Backend.Services.Interfaces;
 using Backend.Services.Reminders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace Backend.Services;
@@ -12,17 +14,20 @@ public class ReminderDigestService : IReminderDigestService
     private readonly IEmailSender _email;
     private readonly TimeProvider _clock;
     private readonly ILogger<ReminderDigestService> _logger;
+    private readonly string _appBaseUrl;
 
     public ReminderDigestService(
         AppDbContext db,
         IEmailSender email,
         TimeProvider clock,
-        ILogger<ReminderDigestService> logger)
+        ILogger<ReminderDigestService> logger,
+        IOptions<EmailOptions> emailOptions)
     {
         _db = db;
         _email = email;
         _clock = clock;
         _logger = logger;
+        _appBaseUrl = emailOptions.Value.AppBaseUrl;
     }
 
     public async Task<DigestRunResult> RunAsync(CancellationToken ct = default)
@@ -90,7 +95,7 @@ public class ReminderDigestService : IReminderDigestService
 
             try
             {
-                var (subject, html) = ReminderEmailComposer.Compose(user.Name, localToday, tasks);
+                var (subject, html) = ReminderEmailComposer.Compose(user.Name, localToday, tasks, _appBaseUrl);
                 await _email.SendAsync(user.Email, subject, html, ct);
 
                 _db.ReminderLogs.Add(new Models.ReminderLog

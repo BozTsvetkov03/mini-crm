@@ -11,6 +11,8 @@ public class EmailOptions
     // When set, emails go through Resend's HTTPS API instead of SMTP —
     // hosts like Render block outbound SMTP ports, but never HTTPS
     public string ResendApiKey { get; set; } = string.Empty;
+    // Public URL of the deployed app; links in emails are omitted when empty
+    public string AppBaseUrl { get; set; } = string.Empty;
 
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(FromAddress);
