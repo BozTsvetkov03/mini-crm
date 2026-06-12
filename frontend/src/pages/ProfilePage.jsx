@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { getSettings, updateProfile, updateReminderSettings } from "../api/settingsApi";
+import { setPassword as setPasswordApi } from "../api/authApi";
 import { getApiErrorMessage } from "../api/apiError";
-import { User, Palette, Bell } from "lucide-react";
+import { User, Palette, Bell, Lock } from "lucide-react";
 import ThemeSwitch from "../components/ThemeSwitch";
 
 const BROWSER_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -36,6 +37,42 @@ function ProfilePage() {
       setSaveError(getApiErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  };
+
+  // --- Security section ---
+  // Google-created accounts start without a password; flips to true after set
+  const [hasPassword, setHasPassword] = useState(user?.hasPassword ?? true);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwError, setPwError] = useState("");
+  const [pwSuccess, setPwSuccess] = useState("");
+
+  const handleSavePassword = async (e) => {
+    e.preventDefault();
+    setPwError("");
+    setPwSuccess("");
+
+    if (newPassword !== confirmNewPassword) {
+      setPwError("Passwords do not match");
+      return;
+    }
+
+    setPwSaving(true);
+    try {
+      await setPasswordApi(hasPassword ? currentPassword : null, newPassword);
+      setPwSuccess(hasPassword ? "Password changed." : "Password set. You can now also log in with it.");
+      setHasPassword(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setTimeout(() => setPwSuccess(""), 4000);
+    } catch (err) {
+      setPwError(getApiErrorMessage(err));
+    } finally {
+      setPwSaving(false);
     }
   };
 
@@ -158,6 +195,91 @@ function ProfilePage() {
               className="rounded-xl bg-emerald-600 px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save"}
+            </button>
+          </form>
+        </section>
+
+        {/* Security card */}
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-4 flex items-center gap-2">
+            <Lock size={18} className="text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Security</h2>
+          </div>
+
+          {!hasPassword && (
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              You signed in with Google and don&apos;t have a password yet.
+              Setting one lets you log in with email and password too.
+            </p>
+          )}
+
+          <form onSubmit={handleSavePassword} className="space-y-4">
+            {hasPassword && (
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Current password
+                </label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  maxLength={128}
+                  required
+                  autoComplete="current-password"
+                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                New password
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                maxLength={128}
+                required
+                autoComplete="new-password"
+                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Confirm new password
+              </label>
+              <input
+                type="password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                maxLength={128}
+                required
+                autoComplete="new-password"
+                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+              />
+            </div>
+
+            {pwError && (
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">{pwError}</p>
+            )}
+            {pwSuccess && (
+              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                {pwSuccess}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={pwSaving}
+              className="rounded-xl bg-emerald-600 px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {pwSaving
+                ? "Saving…"
+                : hasPassword
+                  ? "Change password"
+                  : "Set password"}
             </button>
           </form>
         </section>

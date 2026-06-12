@@ -1,13 +1,16 @@
 using System.Security.Claims;
 using Backend.Dtos;
 using Backend.Models;
+using Backend.Options;
 using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Controllers;
 
@@ -23,6 +26,16 @@ public class AuthController : ControllerBase
         _userManager = userManager;
         _signInManager = signInManager;
     }
+
+    // HasPassword lets the frontend distinguish Google-created accounts
+    // (offer "set a password") from password accounts (offer "change")
+    private async Task<object> UserResponseAsync(User user) => new
+    {
+        user.Id,
+        user.Name,
+        user.Email,
+        HasPassword = await _userManager.HasPasswordAsync(user)
+    };
 
     [HttpPost("register")]
     [IgnoreAntiforgeryToken]
@@ -71,7 +84,7 @@ public class AuthController : ControllerBase
 
         await _signInManager.SignInAsync(user, isPersistent: true);
 
-        return Ok(new { user.Id, user.Name, user.Email });
+        return Ok(await UserResponseAsync(user));
     }
 
     [HttpPost("login")]
@@ -97,7 +110,113 @@ public class AuthController : ControllerBase
 
         await _signInManager.SignInAsync(user, isPersistent: true);
 
-        return Ok(new { user.Id, user.Name, user.Email });
+        return Ok(await UserResponseAsync(user));
+    }
+
+    [HttpPost("forgot-password")]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> ForgotPassword(
+        ForgotPasswordDto dto,
+        [FromServices] IEmailSender emailSender,
+        [FromServices] IOptions<EmailOptions> emailOptions,
+        [FromServices] ILogger<AuthController> logger)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            return BadRequest("Email is required");
+
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
+
+        // Always 204, even for unknown emails or failed sends — the response
+        // must not reveal whether an account exists
+        if (user?.Email == null)
+            return NoContent();
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var baseUrl = emailOptions.Value.AppBaseUrl.TrimEnd('/');
+        var resetUrl =
+            $"{baseUrl}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+
+        var (subject, html) = PasswordResetEmailComposer.Compose(user.Name, resetUrl);
+
+        try
+        {
+            await emailSender.SendAsync(user.Email, subject, html);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send password reset email");
+        }
+
+        return NoContent();
+    }
+
+    [HttpPost("reset-password")]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Token))
+            return BadRequest("Invalid or expired reset link");
+
+        if (string.IsNullOrWhiteSpace(dto.NewPassword))
+            return BadRequest("Password is required");
+
+        if (dto.NewPassword.Length > 128)
+            return BadRequest("Password must be 128 characters or less");
+
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
+        if (user == null)
+            return BadRequest("Invalid or expired reset link");
+
+        var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+        if (!result.Succeeded)
+        {
+            if (result.Errors.Any(e => e.Code == "InvalidToken"))
+                return BadRequest("Invalid or expired reset link");
+
+            return BadRequest(result.Errors.First().Description);
+        }
+
+        return NoContent();
+    }
+
+    // Sets a password for Google-created accounts, changes it for the rest
+    [HttpPost("password")]
+    [Authorize]
+    public async Task<IActionResult> SetPassword(SetPasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.NewPassword))
+            return BadRequest("Password is required");
+
+        if (dto.NewPassword.Length > 128)
+            return BadRequest("Password must be 128 characters or less");
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Unauthorized();
+
+        IdentityResult result;
+        if (await _userManager.HasPasswordAsync(user))
+        {
+            if (string.IsNullOrWhiteSpace(dto.CurrentPassword))
+                return BadRequest("Current password is required");
+
+            result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+            if (result.Errors.Any(e => e.Code == "PasswordMismatch"))
+                return BadRequest("Current password is incorrect");
+        }
+        else
+        {
+            result = await _userManager.AddPasswordAsync(user, dto.NewPassword);
+        }
+
+        if (!result.Succeeded)
+            return BadRequest(result.Errors.First().Description);
+
+        // Password changes rotate the security stamp; refresh the cookie so
+        // the current session isn't invalidated mid-use
+        await _signInManager.RefreshSignInAsync(user);
+
+        return NoContent();
     }
 
     // Full-page navigation target ("Continue with Google" button), not an
@@ -199,7 +318,7 @@ public class AuthController : ControllerBase
         if (user == null)
             return Unauthorized();
 
-        return Ok(new { user.Id, user.Name, user.Email });
+        return Ok(await UserResponseAsync(user));
     }
 
     [HttpPut("profile")]
@@ -222,6 +341,6 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors.First().Description);
 
-        return Ok(new { user.Id, user.Name, user.Email });
+        return Ok(await UserResponseAsync(user));
     }
 }

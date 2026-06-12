@@ -22,6 +22,11 @@ function LoginPage() {
   const [error, setError] = useState(
     externalAuthErrors[searchParams.get("error")] ?? ""
   );
+  const [notice, setNotice] = useState(
+    searchParams.get("reset") === "success"
+      ? "Password updated. Log in with your new password."
+      : ""
+  );
   const [submitting, setSubmitting] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +43,7 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setNotice("");
     setSubmitting(true);
 
     try {
@@ -74,9 +80,17 @@ function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Password
-            </label>
+            <div className="mb-2 flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               name="password"
@@ -89,6 +103,11 @@ function LoginPage() {
 
           {error && (
             <p className="text-sm font-medium text-red-600">{error}</p>
+          )}
+          {notice && (
+            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              {notice}
+            </p>
           )}
 
           <button
