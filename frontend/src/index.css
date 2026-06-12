@@ -27,6 +27,17 @@
   }
 }
 
+/* Lofi player vinyl rotation; play state is toggled inline by the player */
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl-disc {
+  animation: vinyl-spin 9s linear infinite;
+}
+
 .anim-rise {
   opacity: 0;
   animation: reveal-up 0.7s ease-out both;
@@ -69,6 +80,9 @@
     transform: none !important;
   }
   .hero-aurora {
+    animation: none !important;
+  }
+  .vinyl-disc {
     animation: none !important;
   }
 }

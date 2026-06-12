@@ -18,6 +18,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
     public DbSet<Activity> Activities => Set<Activity>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
     public DbSet<ReminderLog> ReminderLogs => Set<ReminderLog>();
+    public DbSet<FocusSession> FocusSessions => Set<FocusSession>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -90,6 +91,19 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
         modelBuilder.Entity<ReminderLog>()
             .Property(r => r.SentAt)
             .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<FocusSession>()
+            .HasOne(f => f.User)
+            .WithMany()
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FocusSession>()
+            .Property(f => f.CompletedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<FocusSession>()
+            .HasIndex(f => new { f.UserId, f.CompletedAt });
 
         modelBuilder.Entity<Activity>()
             .Property(a => a.Type)

@@ -1,7 +1,8 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
-import { Boxes, LogOut, Moon, Sun, UserRound } from "lucide-react";
+import { Boxes, LogOut, Menu, Moon, Sun, UserRound } from "lucide-react";
 import { WORKSPACE_NAV } from "./workspaceNav";
 
 // Shared by rail and bottom bar so active/hover styling stays in one place
@@ -17,16 +18,37 @@ const railLinkClass = ({ isActive }) =>
 const railLabelClass =
   "whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100";
 
+const mobileTabClass = (isActive) =>
+  `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+    isActive
+      ? "text-emerald-600 dark:text-emerald-400"
+      : "text-gray-500 dark:text-gray-400"
+  }`;
+
 function WorkspaceLayout() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const isDark = theme === "dark";
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  // Crossing into another page always dismisses the sheet
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
+
+  const mobilePrimary = WORKSPACE_NAV.filter((item) => item.mobilePrimary);
+  const mobileSecondary = WORKSPACE_NAV.filter((item) => !item.mobilePrimary);
+  // "More" lights up when the active page lives inside the sheet
+  const secondaryActive =
+    mobileSecondary.some((item) => location.pathname.startsWith(item.to)) ||
+    location.pathname.startsWith("/profile");
 
   return (
     <div className="min-h-screen bg-gray-50 transition-colors dark:bg-gray-950">
@@ -81,47 +103,93 @@ function WorkspaceLayout() {
         </div>
       </aside>
 
-      {/* Mobile: bottom icon bar (hover doesn't exist on touch) */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-gray-200 bg-white md:hidden dark:border-gray-800 dark:bg-gray-900">
-        {WORKSPACE_NAV.map(({ to, label, icon: Icon }) => (
+      {/* Mobile: primary destinations + a "More" sheet for everything else,
+          so the bar stays uncrowded as modules are added */}
+      {moreOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={() => setMoreOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {moreOpen && (
+        <div className="fixed inset-x-0 bottom-14 z-50 rounded-t-2xl border-t border-gray-200 bg-white p-2 pb-3 shadow-2xl md:hidden dark:border-gray-800 dark:bg-gray-900">
+          {mobileSecondary.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+                  isActive
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                    : "text-gray-700 dark:text-gray-200"
+                }`
+              }
+            >
+              <Icon size={18} />
+              {label}
+            </NavLink>
+          ))}
+
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+                isActive
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                  : "text-gray-700 dark:text-gray-200"
+              }`
+            }
+          >
+            <UserRound size={18} />
+            {user?.name ?? "Profile"}
+          </NavLink>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            {isDark ? "Light mode" : "Dark mode"}
+          </button>
+
+          <hr className="my-1 border-gray-100 dark:border-gray-800" />
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400"
+          >
+            <LogOut size={18} />
+            Log out
+          </button>
+        </div>
+      )}
+
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex h-14 border-t border-gray-200 bg-white md:hidden dark:border-gray-800 dark:bg-gray-900">
+        {mobilePrimary.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             title={label}
-            className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
-                isActive
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-gray-500 dark:text-gray-400"
-              }`
-            }
+            onClick={() => setMoreOpen(false)}
+            className={({ isActive }) => mobileTabClass(isActive)}
           >
             <Icon size={20} />
             {label}
           </NavLink>
         ))}
-        <NavLink
-          to="/profile"
-          title="Profile"
-          className={({ isActive }) =>
-            `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
-              isActive
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-gray-500 dark:text-gray-400"
-            }`
-          }
-        >
-          <UserRound size={20} />
-          Profile
-        </NavLink>
         <button
           type="button"
-          onClick={handleLogout}
-          title="Log out"
-          className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium text-red-500 dark:text-red-400"
+          onClick={() => setMoreOpen((open) => !open)}
+          title="More"
+          aria-expanded={moreOpen}
+          className={mobileTabClass(moreOpen || secondaryActive)}
         >
-          <LogOut size={20} />
-          Log out
+          <Menu size={20} />
+          More
         </button>
       </nav>
 
