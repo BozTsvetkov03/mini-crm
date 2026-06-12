@@ -2,6 +2,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getApiErrorMessage } from "../api/apiError";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -136,6 +137,16 @@ function RegisterPage() {
             {submitting ? "Creating account..." : "Create Account"}
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+          <span className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500">
+            or
+          </span>
+          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        <GoogleSignInButton label="Sign up with Google" />
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}

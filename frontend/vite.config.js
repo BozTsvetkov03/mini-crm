@@ -9,7 +9,10 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:5269',
-        changeOrigin: true,
+        // Keep the original Host header so the Google OAuth middleware
+        // builds redirect URIs on localhost:5173 and the whole sign-in
+        // flow stays behind this proxy in dev
+        changeOrigin: false,
       }
     }
   },

@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -39,6 +40,36 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
+
+// Google sign-in only lights up when credentials are configured (same
+// pattern as Resend); without them the app runs with password auth only
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    builder.Services.AddAuthentication().AddGoogle(options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+
+        // Must live under /api so the Vite dev proxy forwards it; in prod the
+        // SPA fallback would otherwise swallow the callback URL
+        options.CallbackPath = "/api/auth/google/callback";
+
+        // Not mapped by default; AuthController refuses to link accounts
+        // unless Google says the email is verified
+        options.ClaimActions.MapJsonKey("email_verified", "email_verified");
+
+        // Covers user cancelling the consent screen and stale/missing
+        // correlation cookies, which otherwise surface as a 500
+        options.Events.OnRemoteFailure = ctx =>
+        {
+            ctx.Response.Redirect("/login?error=external-auth-failed");
+            ctx.HandleResponse();
+            return Task.CompletedTask;
+        };
+    });
+}
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

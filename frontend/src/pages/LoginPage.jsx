@@ -1,14 +1,27 @@
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getApiErrorMessage } from "../api/apiError";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+
+// The OAuth flow reports failures via redirect query params, not API errors
+const externalAuthErrors = {
+  "external-auth-failed": "Google sign-in didn't complete. Please try again.",
+  "external-email-unverified":
+    "Your Google account email is unverified, so it can't be used to sign in.",
+  locked: "Account temporarily locked. Try again in a few minutes.",
+  "google-not-configured": "Google sign-in isn't available right now.",
+};
 
 function LoginPage() {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    externalAuthErrors[searchParams.get("error")] ?? ""
+  );
   const [submitting, setSubmitting] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
@@ -86,6 +99,16 @@ function LoginPage() {
             {submitting ? "Logging in..." : "Log In"}
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+          <span className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500">
+            or
+          </span>
+          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        <GoogleSignInButton />
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Don&apos;t have an account?{" "}

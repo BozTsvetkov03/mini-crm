@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Backend.Dtos;
 using Backend.Models;
 using Backend.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -96,6 +98,87 @@ public class AuthController : ControllerBase
         await _signInManager.SignInAsync(user, isPersistent: true);
 
         return Ok(new { user.Id, user.Name, user.Email });
+    }
+
+    // Full-page navigation target ("Continue with Google" button), not an
+    // XHR call: the whole flow runs on redirects so the browser can visit
+    // Google and come back
+    [HttpGet("google")]
+    public async Task<IActionResult> GoogleLogin(
+        [FromServices] IAuthenticationSchemeProvider schemeProvider)
+    {
+        if (await schemeProvider.GetSchemeAsync(GoogleDefaults.AuthenticationScheme) == null)
+            return Redirect("/login?error=google-not-configured");
+
+        var redirectUrl = Url.Action(nameof(GoogleComplete));
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties(
+            GoogleDefaults.AuthenticationScheme, redirectUrl);
+
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    // Where the Google middleware lands after it has exchanged the code and
+    // stashed the identity in the external cookie
+    [HttpGet("google/complete")]
+    public async Task<IActionResult> GoogleComplete()
+    {
+        var info = await _signInManager.GetExternalLoginInfoAsync();
+        if (info == null)
+            return Redirect("/login?error=external-auth-failed");
+
+        // Already linked → straight sign-in
+        var result = await _signInManager.ExternalLoginSignInAsync(
+            info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
+
+        if (result.Succeeded)
+        {
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            return Redirect("/app");
+        }
+
+        if (result.IsLockedOut)
+            return Redirect("/login?error=locked");
+
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email)?.Trim();
+        var emailVerified = string.Equals(
+            info.Principal.FindFirstValue("email_verified"), "true",
+            StringComparison.OrdinalIgnoreCase);
+
+        // Linking by email is only safe when the provider vouches for it;
+        // otherwise anyone could claim an existing account via a Google
+        // profile with an unverified address
+        if (string.IsNullOrWhiteSpace(email) || !emailVerified)
+            return Redirect("/login?error=external-email-unverified");
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            var name = info.Principal.FindFirstValue(ClaimTypes.Name)?.Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                name = email.Split('@')[0];
+            if (name.Length > 50)
+                name = name[..50];
+
+            user = new User
+            {
+                UserName = email,
+                Email = email,
+                Name = name,
+                EmailConfirmed = true
+            };
+
+            var createResult = await _userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+                return Redirect("/login?error=external-auth-failed");
+        }
+
+        var linkResult = await _userManager.AddLoginAsync(user, info);
+        if (!linkResult.Succeeded)
+            return Redirect("/login?error=external-auth-failed");
+
+        await _signInManager.SignInAsync(user, isPersistent: true);
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        return Redirect("/app");
     }
 
     [HttpPost("logout")]
