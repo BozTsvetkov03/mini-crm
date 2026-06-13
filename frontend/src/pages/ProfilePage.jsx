@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { getSettings, updateProfile, updateReminderSettings } from "../api/settingsApi";
+import { getSettings, updateProfile, updateReminderSettings, updatePublicSpace } from "../api/settingsApi";
 import { setPassword as setPasswordApi } from "../api/authApi";
 import { getApiErrorMessage } from "../api/apiError";
-import { User, Palette, Bell, Lock } from "lucide-react";
+import { User, Palette, Bell, Lock, Globe } from "lucide-react";
 import ThemeSwitch from "../components/ThemeSwitch";
+import GoPublicModal from "../components/public/GoPublicModal";
 
 const BROWSER_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const TIME_ZONES =
@@ -82,6 +83,12 @@ function ProfilePage() {
   const [remError, setRemError] = useState("");
   const [remSuccess, setRemSuccess] = useState(false);
 
+  // --- Public space section ---
+  const [publicEnabled, setPublicEnabled] = useState(null); // null while loading
+  const [publicModalOpen, setPublicModalOpen] = useState(false);
+  const [publicSaving, setPublicSaving] = useState(false);
+  const [publicError, setPublicError] = useState("");
+
   useEffect(() => {
     let cancelled = false;
     getSettings()
@@ -93,6 +100,7 @@ function ProfilePage() {
           hour: s.digestHour,
           timeZone: s.timeZone || "UTC",
         });
+        setPublicEnabled(s.publicSpaceEnabled);
       })
       .catch(() => {
         if (!cancelled) setRemError("Failed to load notification settings.");
@@ -129,6 +137,33 @@ function ProfilePage() {
       setRemError(getApiErrorMessage(err));
     } finally {
       setRemSaving(false);
+    }
+  };
+
+  const confirmGoPublic = async () => {
+    setPublicError("");
+    setPublicSaving(true);
+    try {
+      await updatePublicSpace(true);
+      setPublicEnabled(true);
+      setPublicModalOpen(false);
+    } catch (err) {
+      setPublicError(getApiErrorMessage(err));
+    } finally {
+      setPublicSaving(false);
+    }
+  };
+
+  const handleLeavePublic = async () => {
+    setPublicError("");
+    setPublicSaving(true);
+    try {
+      await updatePublicSpace(false);
+      setPublicEnabled(false);
+    } catch (err) {
+      setPublicError(getApiErrorMessage(err));
+    } finally {
+      setPublicSaving(false);
     }
   };
 
@@ -421,7 +456,61 @@ function ProfilePage() {
             </form>
           )}
         </section>
+
+        {/* Public space card */}
+        <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
+          <div className="mb-4 flex items-center gap-2">
+            <Globe size={18} className="text-primary-strong" />
+            <h2 className="text-lg font-semibold text-ink">Public space</h2>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-ink">
+                {publicEnabled ? "You're in the public space" : "Join the public space"}
+              </p>
+              <p className="text-xs text-ink-muted">
+                A shared timeline of activity — focus sessions, tasks and
+                notebook writing. Others see your name and the time, never your
+                content.
+              </p>
+            </div>
+
+            {publicEnabled === null ? (
+              <span className="shrink-0 text-sm text-ink-muted">Loading…</span>
+            ) : publicEnabled ? (
+              <button
+                type="button"
+                onClick={handleLeavePublic}
+                disabled={publicSaving}
+                className="shrink-0 rounded-xl border border-line-strong px-4 py-2 font-medium text-ink transition hover:bg-ink/5 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {publicSaving ? "Saving…" : "Leave public space"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setPublicModalOpen(true)}
+                disabled={publicSaving}
+                className="shrink-0 rounded-xl bg-primary-strong px-5 py-2 font-medium text-white transition hover:bg-primary-strong/85 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Go Public!
+              </button>
+            )}
+          </div>
+
+          {publicError && (
+            <p className="mt-3 text-sm font-medium text-danger">{publicError}</p>
+          )}
+        </section>
       </div>
+
+      <GoPublicModal
+        open={publicModalOpen}
+        confirming={publicSaving}
+        onConfirm={confirmGoPublic}
+        onCancel={() => setPublicModalOpen(false)}
+      />
     </main>
   );
 }

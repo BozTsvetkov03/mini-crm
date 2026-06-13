@@ -20,6 +20,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
     public DbSet<ReminderLog> ReminderLogs => Set<ReminderLog>();
     public DbSet<FocusSession> FocusSessions => Set<FocusSession>();
     public DbSet<NotebookPage> NotebookPages => Set<NotebookPage>();
+    public DbSet<UserEvent> UserEvents => Set<UserEvent>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -122,6 +123,28 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
 
         modelBuilder.Entity<NotebookPage>()
             .HasIndex(p => new { p.UserId, p.CreatedAt });
+
+        modelBuilder.Entity<UserEvent>()
+            .HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserEvent>()
+            .Property(e => e.Type)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<UserEvent>()
+            .Property(e => e.OccurredAt)
+            .HasColumnType("timestamp with time zone");
+
+        // Coalescing looks up a user's most recent event of a given type;
+        // the feed sorts everything by OccurredAt.
+        modelBuilder.Entity<UserEvent>()
+            .HasIndex(e => new { e.UserId, e.Type, e.OccurredAt });
+
+        modelBuilder.Entity<UserEvent>()
+            .HasIndex(e => e.OccurredAt);
 
         modelBuilder.Entity<Activity>()
             .Property(a => a.Type)

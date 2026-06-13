@@ -1,4 +1,4 @@
-import { Users, CalendarDays, Timer, NotebookText, Clock, CheckCircle2 } from "lucide-react";
+import { Users, CalendarDays, Timer, NotebookText, Clock, CheckCircle2, Globe } from "lucide-react";
 
 // Single source of truth for workspace modules. Future modules (Expenses,
 // Notes…) and the artsy redesign's custom SVGs only touch this list — each
@@ -12,6 +12,7 @@ export const WORKSPACE_NAV = [
   { to: "/calendar", label: "Calendar", icon: CalendarDays, mobilePrimary: true },
   { to: "/focus", label: "Focus", icon: Timer, mobilePrimary: true },
   { to: "/notebook", label: "Notebook", icon: NotebookText, mobilePrimary: true },
+  { to: "/public", label: "Public", icon: Globe },
   { to: "/tasks/due", label: "Due tasks", icon: Clock },
   { to: "/tasks/completed", label: "Completed", icon: CheckCircle2 },
 ];

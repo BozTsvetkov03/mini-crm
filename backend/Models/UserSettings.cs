@@ -11,6 +11,9 @@ public class UserSettings
     public int RemindDaysBefore { get; set; } = 3;
     public int DigestHour { get; set; } = 8;
     public string TimeZone { get; set; } = "UTC";
+
+    // Public space is opt-in and off by default.
+    public bool PublicSpaceEnabled { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 

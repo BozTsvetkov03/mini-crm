@@ -5,6 +5,7 @@ import DashboardPage from "./pages/Dashboard";
 import CalendarPage from "./pages/CalendarPage";
 import FocusPage from "./pages/FocusPage";
 import NotebookPage from "./pages/NotebookPage";
+import PublicSpacePage from "./pages/PublicSpacePage";
 import ProfilePage from "./pages/ProfilePage";
 import CompletedTasksPage from "./pages/CompletedTasksPage";
 import DueTasksPage from "./pages/DueTasksPage";
@@ -52,6 +53,7 @@ function App() {
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/focus" element={<FocusPage />} />
         <Route path="/notebook" element={<NotebookPage />} />
+        <Route path="/public" element={<PublicSpacePage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/tasks/completed" element={<CompletedTasksPage />} />
         <Route path="/tasks/due" element={<DueTasksPage />} />

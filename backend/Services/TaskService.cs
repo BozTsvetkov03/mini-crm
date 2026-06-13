@@ -11,11 +11,13 @@ public class TaskService : ITaskService
 {
     private readonly AppDbContext _db;
     private readonly IActivityService _activityService;
+    private readonly IUserEventService _userEvents;
 
-    public TaskService(AppDbContext db, IActivityService activityService)
+    public TaskService(AppDbContext db, IActivityService activityService, IUserEventService userEvents)
     {
         _db = db;
         _activityService = activityService;
+        _userEvents = userEvents;
     }
 
     public async Task<IEnumerable<TaskItem>> GetTasksByCustomerAsync(Guid customerId, Guid userId)
@@ -88,6 +90,8 @@ public class TaskService : ITaskService
             })
         });
 
+        await _userEvents.RecordAsync(userId, UserEventType.TaskCreated);
+
         return task;
     }
 
@@ -125,6 +129,10 @@ public class TaskService : ITaskService
             })
         });
 
+        // Public feed cares only about completion, not generic edits.
+        if (!wasDone && dto.IsDone)
+            await _userEvents.RecordAsync(userId, UserEventType.TaskCompleted);
+
         return task;
     }
 
@@ -153,6 +161,8 @@ public class TaskService : ITaskService
                 DueDate = task.DueDate
             })
         });
+
+        await _userEvents.RecordAsync(userId, UserEventType.TaskCompleted);
 
         return task;
     }

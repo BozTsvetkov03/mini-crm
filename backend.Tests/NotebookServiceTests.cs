@@ -39,7 +39,8 @@ public class NotebookServiceTests : IDisposable
             new User { Id = _otherUserId, Name = "Other", UserName = "other@test.local", Email = "other@test.local" });
         _db.SaveChanges();
 
-        _service = new NotebookService(_db, new FixedTimeProvider());
+        var time = new FixedTimeProvider();
+        _service = new NotebookService(_db, time, new UserEventService(_db, time));
     }
 
     [Fact]

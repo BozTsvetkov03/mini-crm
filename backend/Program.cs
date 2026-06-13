@@ -183,6 +183,7 @@ builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
 builder.Services.AddScoped<IFocusSessionService, FocusSessionService>();
 builder.Services.AddScoped<INotebookService, NotebookService>();
+builder.Services.AddScoped<IUserEventService, UserEventService>();
 
 var app = builder.Build();
 

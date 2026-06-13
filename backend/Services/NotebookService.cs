@@ -9,11 +9,13 @@ public class NotebookService : INotebookService
 {
     private readonly AppDbContext _db;
     private readonly TimeProvider _time;
+    private readonly IUserEventService _userEvents;
 
-    public NotebookService(AppDbContext db, TimeProvider time)
+    public NotebookService(AppDbContext db, TimeProvider time, IUserEventService userEvents)
     {
         _db = db;
         _time = time;
+        _userEvents = userEvents;
     }
 
     // Stable, notebook-like order: pages stay where they were created rather
@@ -50,6 +52,8 @@ public class NotebookService : INotebookService
         _db.NotebookPages.Add(page);
         await _db.SaveChangesAsync();
 
+        await _userEvents.RecordAsync(userId, UserEventType.NotebookPageCreated);
+
         return Map(page);
     }
 
@@ -66,6 +70,11 @@ public class NotebookService : INotebookService
         page.UpdatedAt = _time.GetUtcNow().UtcDateTime;
 
         await _db.SaveChangesAsync();
+
+        // Coalesced inside the service: many debounced autosaves become one
+        // "wrote in their notebook" event per sitting.
+        await _userEvents.RecordAsync(userId, UserEventType.NotebookWrote);
+
         return Map(page);
     }
 

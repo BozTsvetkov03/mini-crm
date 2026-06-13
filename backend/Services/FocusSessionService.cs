@@ -9,11 +9,13 @@ public class FocusSessionService : IFocusSessionService
 {
     private readonly AppDbContext _db;
     private readonly TimeProvider _time;
+    private readonly IUserEventService _userEvents;
 
-    public FocusSessionService(AppDbContext db, TimeProvider time)
+    public FocusSessionService(AppDbContext db, TimeProvider time, IUserEventService userEvents)
     {
         _db = db;
         _time = time;
+        _userEvents = userEvents;
     }
 
     public async Task<FocusSessionDto> CreateAsync(Guid userId, int durationMinutes)
@@ -28,6 +30,8 @@ public class FocusSessionService : IFocusSessionService
 
         _db.FocusSessions.Add(session);
         await _db.SaveChangesAsync();
+
+        await _userEvents.RecordAsync(userId, UserEventType.FocusSessionCompleted, durationMinutes);
 
         return Map(session);
     }
