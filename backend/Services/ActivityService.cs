@@ -3,6 +3,7 @@ using Backend.Data;
 using Backend.Dtos;
 using Backend.Models;
 using Backend.Services;
+using Microsoft.EntityFrameworkCore;
 
 public class ActivityService : IActivityService
 {
@@ -17,6 +18,22 @@ public class ActivityService : IActivityService
     {
         _db.Activities.Add(activity);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<ActivityDto>?> GetByCustomerAsync(Guid customerId, Guid userId)
+    {
+        var ownsCustomer = await _db.Customers
+            .AnyAsync(c => c.Id == customerId && c.OwnerId == userId);
+
+        if (!ownsCustomer)
+            return null;
+
+        var activities = await _db.Activities
+            .Where(a => a.CustomerId == customerId)
+            .OrderByDescending(a => a.CreatedAt)
+            .ToListAsync();
+
+        return activities.Select(Map).ToList();
     }
 
     private ActivityDto Map(Activity activity)

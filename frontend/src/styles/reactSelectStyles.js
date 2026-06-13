@@ -1,21 +1,19 @@
-// since you cant apply tailwind styles to react-select directly using className, chatgpt suggested this:
+// react-select can't take Tailwind classes, so its styles reference the same
+// CSS design tokens (var(--…) from index.css) that the utilities are built
+// from — they flip with .dark automatically, no theme prop needed.
 
-// Factory so the control can adapt to light/dark mode. Pass `isDark` from the
-// component (which reads it from ThemeContext) so the styles recompute on toggle.
-export const makeSelectStyles = (isDark = false) => ({
+export const makeSelectStyles = () => ({
   control: (base, state) => ({
     ...base,
     minHeight: "42px",
     borderRadius: "0.75rem",
-    borderColor: state.isFocused ? "#34d399" : isDark ? "#374151" : "#d1d5db",
-    boxShadow: state.isFocused
-      ? `0 0 0 2px ${isDark ? "#064e3b" : "#d1fae5"}`
-      : "none",
+    borderColor: state.isFocused ? "var(--primary)" : "var(--line-strong)",
+    boxShadow: state.isFocused ? "0 0 0 2px var(--ring)" : "none",
     "&:hover": {
-      borderColor: state.isFocused ? "#34d399" : isDark ? "#374151" : "#d1d5db",
+      borderColor: state.isFocused ? "var(--primary)" : "var(--line-strong)",
     },
     paddingLeft: "2px",
-    backgroundColor: isDark ? "#1f2937" : "white",
+    backgroundColor: "var(--field)",
   }),
   valueContainer: (base) => ({
     ...base,
@@ -25,31 +23,31 @@ export const makeSelectStyles = (isDark = false) => ({
     ...base,
     margin: "0px",
     padding: "0px",
-    color: isDark ? "#f3f4f6" : "#111827",
+    color: "var(--ink)",
   }),
   placeholder: (base) => ({
     ...base,
-    color: isDark ? "#6b7280" : "#9ca3af",
+    color: "var(--ink-faint)",
   }),
   singleValue: (base) => ({
     ...base,
-    color: isDark ? "#f3f4f6" : "#111827",
+    color: "var(--ink)",
   }),
   indicatorSeparator: () => ({
     display: "none",
   }),
   dropdownIndicator: (base) => ({
     ...base,
-    color: "#6b7280",
+    color: "var(--ink-muted)",
     "&:hover": {
-      color: isDark ? "#d1d5db" : "#374151",
+      color: "var(--ink)",
     },
   }),
   clearIndicator: (base) => ({
     ...base,
-    color: "#6b7280",
+    color: "var(--ink-muted)",
     "&:hover": {
-      color: "#dc2626",
+      color: "var(--danger)",
     },
   }),
   menu: (base) => ({
@@ -57,7 +55,7 @@ export const makeSelectStyles = (isDark = false) => ({
     borderRadius: "0.75rem",
     overflow: "hidden",
     zIndex: 20,
-    backgroundColor: isDark ? "#1f2937" : "white",
+    backgroundColor: "var(--field)",
   }),
   menuList: (base) => ({
     ...base,
@@ -67,18 +65,15 @@ export const makeSelectStyles = (isDark = false) => ({
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected
-      ? "#10b981"
+      ? "var(--primary-strong)"
       : state.isFocused
-      ? isDark
-        ? "#064e3b"
-        : "#ecfdf5"
-      : isDark
-      ? "#1f2937"
-      : "white",
-    color: state.isSelected ? "white" : isDark ? "#f3f4f6" : "#111827",
+        ? "color-mix(in oklab, var(--primary) 15%, transparent)"
+        : "var(--field)",
+    color: state.isSelected ? "var(--background)" : "var(--ink)",
     cursor: "pointer",
   }),
 });
 
-// Backwards-compatible light styles for any caller that doesn't pass a theme.
-export const selectStyles = makeSelectStyles(false);
+// Backwards-compatible export; the param is no longer needed since the
+// tokens flip with the .dark class on <html>.
+export const selectStyles = makeSelectStyles();

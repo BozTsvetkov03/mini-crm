@@ -38,7 +38,7 @@ public static class ReminderEmailComposer
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:12px;">
                       <tr>
                         <td style="padding:32px 32px 36px;font-family:Arial,Helvetica,sans-serif;color:#111827;">
-                          <h1 style="margin:0 0 20px;font-size:24px;line-height:1.3;color:#059669;">CRM Mini</h1>
+                          <h1 style="margin:0 0 20px;font-size:24px;line-height:1.3;color:#5e6b5f;">Atelier</h1>
             """);
         // Invariant culture: the template is English and the server's culture
         // must not leak localized month names into it
@@ -71,7 +71,7 @@ public static class ReminderEmailComposer
 
         sb.Append("""
                           <p style="margin:32px 0 0;padding-top:16px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:13px;line-height:1.5;">
-                            You're receiving this because email reminders are enabled in your CRM Mini settings.
+                            You're receiving this because email reminders are enabled in your Atelier settings.
                           </p>
                         </td>
                       </tr>

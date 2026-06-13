@@ -1,70 +1,34 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Dtos;
-using Backend.Models;
-using Backend.Data;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/activities")]
+[Authorize]
 public class ActivityController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly IActivityService _activityService;
 
-    public ActivityController(AppDbContext db)
+    public ActivityController(IActivityService activityService)
     {
-        _db = db;
+        _activityService = activityService;
     }
 
-    [HttpGet("{customerId}")]
-    public async Task<IEnumerable<ActivityDto>> Get(Guid customerId)
+    private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    [HttpGet("{customerId:guid}")]
+    public async Task<ActionResult<IEnumerable<ActivityDto>>> Get(Guid customerId)
     {
-        var activities = await _db.Activities
-        .Where(a => a.CustomerId == customerId)
-        .OrderByDescending(a => a.CreatedAt)
-        .ToListAsync();
+        var userId = GetUserId();
+        var activities = await _activityService.GetByCustomerAsync(customerId, userId);
 
-        return activities.Select(Map).ToList();
-    }
+        if (activities == null)
+            return NotFound("Customer not found");
 
-    private ActivityDto Map(Activity activity)
-    {
-        return activity.Type switch
-        {
-            ActivityType.NoteCreated or ActivityType.NoteEdited => new ActivityDto
-            {
-                Type = activity.Type,
-                Title = activity.Type == ActivityType.NoteCreated ? "Note added" : "Note edited",
-                Icon = "📝",
-                CreatedAt = activity.CreatedAt,
-                Data = JsonSerializer.Deserialize<object>(activity.PayloadJson)
-            },
-
-            ActivityType.TaskCreated or ActivityType.TaskEdited or ActivityType.TaskCompleted => new ActivityDto
-            {
-                Type = activity.Type,
-                Title = activity.Type switch
-                {
-                    ActivityType.TaskCreated => "Task created",
-                    ActivityType.TaskEdited => "Task updated",
-                    ActivityType.TaskCompleted => "Task completed",
-                    _ => "Task activity"
-                },
-                Icon = "🎯",
-                CreatedAt = activity.CreatedAt,
-                Data = JsonSerializer.Deserialize<object>(activity.PayloadJson)
-            },
-
-            _ => new ActivityDto
-            {
-                Type = activity.Type,
-                Title = "Activity",
-                Icon = "📌",
-                CreatedAt = activity.CreatedAt,
-                Data = new { }
-            }
-        };
+        return Ok(activities);
     }
 }

@@ -18,6 +18,9 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
     public DbSet<Activity> Activities => Set<Activity>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
     public DbSet<ReminderLog> ReminderLogs => Set<ReminderLog>();
+    public DbSet<FocusSession> FocusSessions => Set<FocusSession>();
+    public DbSet<NotebookPage> NotebookPages => Set<NotebookPage>();
+    public DbSet<UserEvent> UserEvents => Set<UserEvent>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -90,6 +93,58 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, I
         modelBuilder.Entity<ReminderLog>()
             .Property(r => r.SentAt)
             .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<FocusSession>()
+            .HasOne(f => f.User)
+            .WithMany()
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FocusSession>()
+            .Property(f => f.CompletedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<FocusSession>()
+            .HasIndex(f => new { f.UserId, f.CompletedAt });
+
+        modelBuilder.Entity<NotebookPage>()
+            .HasOne(p => p.User)
+            .WithMany()
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NotebookPage>()
+            .Property(p => p.CreatedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<NotebookPage>()
+            .Property(p => p.UpdatedAt)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<NotebookPage>()
+            .HasIndex(p => new { p.UserId, p.CreatedAt });
+
+        modelBuilder.Entity<UserEvent>()
+            .HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserEvent>()
+            .Property(e => e.Type)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<UserEvent>()
+            .Property(e => e.OccurredAt)
+            .HasColumnType("timestamp with time zone");
+
+        // Coalescing looks up a user's most recent event of a given type;
+        // the feed sorts everything by OccurredAt.
+        modelBuilder.Entity<UserEvent>()
+            .HasIndex(e => new { e.UserId, e.Type, e.OccurredAt });
+
+        modelBuilder.Entity<UserEvent>()
+            .HasIndex(e => e.OccurredAt);
 
         modelBuilder.Entity<Activity>()
             .Property(a => a.Type)

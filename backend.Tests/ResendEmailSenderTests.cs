@@ -31,8 +31,8 @@ public class ResendEmailSenderTests
         var handler = new StubHandler();
         var options = MsOptions.Create(new EmailOptions
         {
-            FromAddress = "noreply@crm-mini.dev",
-            FromName = "CRM Mini",
+            FromAddress = "noreply@atelier.dev",
+            FromName = "Atelier",
             ResendApiKey = "re_test_key"
         });
         return (new ResendEmailSender(new HttpClient(handler), options), handler);
@@ -52,7 +52,7 @@ public class ResendEmailSenderTests
 
         using var json = JsonDocument.Parse(handler.RequestBody!);
         var root = json.RootElement;
-        Assert.Equal("CRM Mini <noreply@crm-mini.dev>", root.GetProperty("from").GetString());
+        Assert.Equal("Atelier <noreply@atelier.dev>", root.GetProperty("from").GetString());
         Assert.Equal("user@example.com", root.GetProperty("to")[0].GetString());
         Assert.Equal("Hello", root.GetProperty("subject").GetString());
         Assert.Equal("<p>Hi</p>", root.GetProperty("html").GetString());

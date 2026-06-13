@@ -21,17 +21,17 @@ function WeekView({ anchorDate, tasks }) {
         return (
           <div
             key={day.toISOString()}
-            className="rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-gray-900"
+            className="rounded-2xl border border-line bg-surface p-2"
           >
-            <div className="mb-2 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-              <span className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+            <div className="mb-2 flex items-center justify-between border-b border-line pb-2">
+              <span className="text-xs font-semibold uppercase text-ink-muted">
                 {day.toLocaleDateString(undefined, { weekday: "short" })}
               </span>
               <span
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
                   isToday
-                    ? "bg-emerald-600 font-semibold text-white"
-                    : "text-gray-700 dark:text-gray-300"
+                    ? "bg-primary-strong font-semibold text-white"
+                    : "text-ink"
                 }`}
               >
                 {day.getDate()}
@@ -40,7 +40,7 @@ function WeekView({ anchorDate, tasks }) {
 
             <div className="space-y-1">
               {dayTasks.length === 0 ? (
-                <p className="px-1 py-2 text-xs text-gray-400 dark:text-gray-600">
+                <p className="px-1 py-2 text-xs text-ink-faint dark:text-ink-muted">
                   —
                 </p>
               ) : (

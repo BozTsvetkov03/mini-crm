@@ -83,6 +83,28 @@ namespace backend.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("Backend.Models.FocusSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CompletedAt");
+
+                    b.ToTable("FocusSessions");
+                });
+
             modelBuilder.Entity("Backend.Models.NoteItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -107,6 +129,36 @@ namespace backend.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Notes");
+                });
+
+            modelBuilder.Entity("Backend.Models.NotebookPage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("NotebookPages");
                 });
 
             modelBuilder.Entity("Backend.Models.ReminderLog", b =>
@@ -233,6 +285,34 @@ namespace backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.UserEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredAt");
+
+                    b.HasIndex("UserId", "Type", "OccurredAt");
+
+                    b.ToTable("UserEvents");
+                });
+
             modelBuilder.Entity("Backend.Models.UserSettings", b =>
                 {
                     b.Property<Guid>("Id")
@@ -246,6 +326,9 @@ namespace backend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool>("EmailRemindersEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PublicSpaceEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<int>("RemindDaysBefore")
@@ -444,6 +527,17 @@ namespace backend.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Backend.Models.FocusSession", b =>
+                {
+                    b.HasOne("Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Backend.Models.NoteItem", b =>
                 {
                     b.HasOne("Backend.Models.Customer", "Customer")
@@ -453,6 +547,17 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Backend.Models.NotebookPage", b =>
+                {
+                    b.HasOne("Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Backend.Models.ReminderLog", b =>
@@ -475,6 +580,17 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Backend.Models.UserEvent", b =>
+                {
+                    b.HasOne("Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Backend.Models.UserSettings", b =>

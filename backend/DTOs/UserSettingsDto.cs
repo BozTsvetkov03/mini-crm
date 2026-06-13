@@ -9,6 +9,7 @@ public class UserSettingsDto
     public int RemindDaysBefore { get; set; } = 3;
     public int DigestHour { get; set; } = 8;
     public string TimeZone { get; set; } = "UTC";
+    public bool PublicSpaceEnabled { get; set; }
 }
 
 // All fields optional: callers send only what they change (the theme toggle
@@ -25,4 +26,6 @@ public class UpdateUserSettingsDto
     public int? DigestHour { get; set; }
 
     public string? TimeZone { get; set; }
+
+    public bool? PublicSpaceEnabled { get; set; }
 }

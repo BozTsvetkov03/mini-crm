@@ -24,3 +24,8 @@ export async function updateProfile(name) {
   const response = await http.put("/auth/profile", { name });
   return response.data;
 }
+
+export async function updatePublicSpace(enabled) {
+  const response = await http.put("/user-settings", { publicSpaceEnabled: enabled });
+  return response.data;
+}

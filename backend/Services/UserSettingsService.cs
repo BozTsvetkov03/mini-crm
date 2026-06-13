@@ -33,6 +33,7 @@ public class UserSettingsService : IUserSettingsService
         if (dto.RemindDaysBefore.HasValue) settings.RemindDaysBefore = dto.RemindDaysBefore.Value;
         if (dto.DigestHour.HasValue) settings.DigestHour = dto.DigestHour.Value;
         if (dto.TimeZone != null) settings.TimeZone = dto.TimeZone;
+        if (dto.PublicSpaceEnabled.HasValue) settings.PublicSpaceEnabled = dto.PublicSpaceEnabled.Value;
         settings.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
@@ -68,6 +69,7 @@ public class UserSettingsService : IUserSettingsService
         EmailRemindersEnabled = settings.EmailRemindersEnabled,
         RemindDaysBefore = settings.RemindDaysBefore,
         DigestHour = settings.DigestHour,
-        TimeZone = settings.TimeZone
+        TimeZone = settings.TimeZone,
+        PublicSpaceEnabled = settings.PublicSpaceEnabled
     };
 }

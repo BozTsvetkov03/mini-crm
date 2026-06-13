@@ -134,7 +134,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
 
   if (tasks.length === 0) {
     return (
-      <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+      <p className="py-8 text-center text-ink-muted">
         No tasks found.
       </p>
     );
@@ -143,7 +143,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
   return (
     <>
       {actionError && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
+        <div className="mb-4 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
           {actionError}
         </div>
       )}
@@ -153,21 +153,21 @@ function SortableTaskTable({ tasks, mode, onReload }) {
         {sorted.map((task) => (
           <div
             key={task.id}
-            className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+            className="rounded-xl border border-line bg-surface p-4"
           >
-            <p className="font-semibold text-gray-900 dark:text-gray-100">
+            <p className="font-semibold text-ink">
               {task.title}
             </p>
             {task.customerName && (
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm text-ink-muted">
                 {task.customerName}
               </p>
             )}
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-sm text-ink-muted">
               Due: {fmtDate(task.dueDate)}
             </p>
             {mode === "completed" && (
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm text-ink-muted">
                 Completed: {fmtDate(task.completedAt)}
               </p>
             )}
@@ -175,8 +175,8 @@ function SortableTaskTable({ tasks, mode, onReload }) {
               <span
                 className={
                   task.isDone
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-amber-600 dark:text-amber-400"
+                    ? "text-primary-strong"
+                    : "text-warning"
                 }
               >
                 {task.isDone ? "Done" : "Pending"}
@@ -185,7 +185,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => setEditingTask(task)}
-                className="rounded-xl p-2 text-blue-600 transition hover:cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                className="rounded-xl p-2 text-secondary transition hover:cursor-pointer hover:bg-secondary/15"
                 title="Edit"
               >
                 <Pencil size={16} />
@@ -193,7 +193,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
               {!task.isDone && (
                 <button
                   onClick={() => handleComplete(task.id)}
-                  className="rounded-xl p-2 text-emerald-600 transition hover:cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                  className="rounded-xl p-2 text-primary-strong transition hover:cursor-pointer hover:bg-primary/10"
                   title="Complete"
                 >
                   <Check size={16} />
@@ -201,7 +201,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
               )}
               <button
                 onClick={() => handleDelete(task.id)}
-                className="rounded-xl p-2 text-red-600 transition hover:cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/30"
+                className="rounded-xl p-2 text-danger transition hover:cursor-pointer hover:bg-danger/10"
                 title="Delete"
               >
                 <Trash2 size={16} />
@@ -212,9 +212,9 @@ function SortableTaskTable({ tasks, mode, onReload }) {
       </div>
 
       {/* ── Desktop table ── */}
-      <div className="hidden overflow-x-auto rounded-xl border border-gray-200 md:block dark:border-gray-800">
-        <table className="w-full border-collapse text-gray-900 dark:text-gray-200">
-          <thead className="bg-gray-100 text-sm dark:bg-gray-800">
+      <div className="hidden overflow-x-auto rounded-xl border border-line md:block">
+        <table className="w-full border-collapse text-ink">
+          <thead className="bg-line text-sm">
             <tr>
               <SortHeader label="Title" colKey="title" />
               <SortHeader label="Customer" colKey="customerName" />
@@ -230,17 +230,17 @@ function SortableTaskTable({ tasks, mode, onReload }) {
             {sorted.map((task) => (
               <tr
                 key={task.id}
-                className="border-t transition-colors dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="border-t transition-colors hover:bg-ink/5"
               >
                 <td className="px-4 py-3">{task.title}</td>
-                <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                <td className="px-4 py-3 text-ink-muted">
                   {task.customerName || "—"}
                 </td>
-                <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                <td className="px-4 py-3 text-ink-muted">
                   {fmtDate(task.dueDate)}
                 </td>
                 {mode === "completed" && (
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                  <td className="px-4 py-3 text-ink-muted">
                     {fmtDate(task.completedAt)}
                   </td>
                 )}
@@ -248,8 +248,8 @@ function SortableTaskTable({ tasks, mode, onReload }) {
                   <span
                     className={
                       task.isDone
-                        ? "font-medium text-emerald-600 dark:text-emerald-400"
-                        : "font-medium text-amber-600 dark:text-amber-400"
+                        ? "font-medium text-primary-strong"
+                        : "font-medium text-warning"
                     }
                   >
                     {task.isDone ? "Done" : "Pending"}
@@ -259,7 +259,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setEditingTask(task)}
-                      className="rounded-xl p-2 text-blue-600 transition hover:cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                      className="rounded-xl p-2 text-secondary transition hover:cursor-pointer hover:bg-secondary/15"
                       title="Edit"
                     >
                       <Pencil size={16} />
@@ -267,7 +267,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
                     {!task.isDone && (
                       <button
                         onClick={() => handleComplete(task.id)}
-                        className="rounded-xl p-2 text-emerald-600 transition hover:cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                        className="rounded-xl p-2 text-primary-strong transition hover:cursor-pointer hover:bg-primary/10"
                         title="Complete"
                       >
                         <Check size={16} />
@@ -275,7 +275,7 @@ function SortableTaskTable({ tasks, mode, onReload }) {
                     )}
                     <button
                       onClick={() => handleDelete(task.id)}
-                      className="rounded-xl p-2 text-red-600 transition hover:cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/30"
+                      className="rounded-xl p-2 text-danger transition hover:cursor-pointer hover:bg-danger/10"
                       title="Delete"
                     >
                       <Trash2 size={16} />

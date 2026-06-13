@@ -9,7 +9,7 @@ function GoogleSignInButton({ label = "Continue with Google" }) {
         // redirects through Google and back
         window.location.href = `${API_BASE}/auth/google`;
       }}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 transition hover:cursor-pointer hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+      className="flex w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-field px-4 py-2 font-medium text-ink transition hover:cursor-pointer hover:bg-ink/5"
     >
       <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
         <path

@@ -277,26 +277,26 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-150 transition-colors dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-background transition-colors">
       <div className="w-[92%] lg:w-[80%] mx-auto pt-16 pb-16">
         {/* Summary cards */}
         <div className="mb-8 grid grid-cols-2 gap-4">
           <button
             onClick={() => navigate("/tasks/completed")}
-            className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-md transition hover:border-emerald-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900 dark:hover:border-emerald-700"
+            className="rounded-2xl border border-line bg-surface p-5 text-left shadow-md transition hover:border-primary hover:shadow-lg"
           >
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed tasks</p>
-            <p className="mt-1 text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+            <p className="text-sm font-medium text-ink-muted">Completed tasks</p>
+            <p className="mt-1 text-3xl font-bold text-primary-strong">
               {completedCount === null ? "—" : completedCount}
             </p>
           </button>
 
           <button
             onClick={() => navigate("/tasks/due")}
-            className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-md transition hover:border-amber-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900 dark:hover:border-amber-700"
+            className="rounded-2xl border border-line bg-surface p-5 text-left shadow-md transition hover:border-warning hover:shadow-lg"
           >
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Due tasks</p>
-            <p className="mt-1 text-3xl font-bold text-amber-600 dark:text-amber-400">
+            <p className="text-sm font-medium text-ink-muted">Due tasks</p>
+            <p className="mt-1 text-3xl font-bold text-warning">
               {dueCount === null ? "—" : dueCount}
             </p>
           </button>
@@ -321,18 +321,18 @@ export default function DashboardPage() {
             limit={10}
           />
 
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 min-h-fit transition-colors dark:bg-gray-900 dark:border-gray-800">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          <div className="bg-surface rounded-2xl shadow-md border border-line p-6 min-h-fit transition-colors">
+            <h2 className="text-xl font-semibold mb-4 text-ink">
               {selectedCustomer ? selectedCustomer.name : "Details"}
             </h2>
 
-            <div className="flex border-b border-gray-200 mb-6 dark:border-gray-800">
+            <div className="flex border-b border-line mb-6">
               <button
                 onClick={() => setActiveTab("tasks")}
                 className={`px-4 py-2 text-sm font-medium transition -mb-px ${
                   activeTab === "tasks"
-                    ? "border-b-2 border-emerald-600 text-emerald-600"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    ? "border-b-2 border-primary-strong text-primary-strong"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 Tasks
@@ -341,8 +341,8 @@ export default function DashboardPage() {
                 onClick={() => setActiveTab("notes")}
                 className={`px-4 py-2 text-sm font-medium transition -mb-px ${
                   activeTab === "notes"
-                    ? "border-b-2 border-amber-600 text-amber-600"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    ? "border-b-2 border-warning text-warning"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 Notes
@@ -351,8 +351,8 @@ export default function DashboardPage() {
                 onClick={() => setActiveTab("activity")}
                 className={`px-4 py-2 text-sm font-medium transition -mb-px ${
                   activeTab === "activity"
-                    ? "border-b-2 border-blue-600 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    ? "border-b-2 border-secondary text-secondary"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 Activity
