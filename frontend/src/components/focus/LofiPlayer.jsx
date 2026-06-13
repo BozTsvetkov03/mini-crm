@@ -7,7 +7,7 @@ function LofiPlayer() {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loadError, setLoadError] = useState("");
-  const [volume, setVolume] = useState(0.7);
+  const [volume, setVolume] = useState(0.1);
 
   const audioRef = useRef(null);
   // Consecutive failures cap so a dead node can't loop the queue forever

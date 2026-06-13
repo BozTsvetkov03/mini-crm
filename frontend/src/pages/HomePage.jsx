@@ -7,6 +7,7 @@ import {
   Users,
   CalendarDays,
   Timer,
+  NotebookText,
   Boxes,
   Palette,
   Headphones,
@@ -66,7 +67,7 @@ export default function HomePage() {
           <Pillar
             icon={LayoutGrid}
             title="Organized"
-            text="Keep clients, schedules, and tasks connected in one place."
+            text="Keep notes, clients, schedules, and tasks connected in one place."
           />
           <Pillar
             icon={Compass}
@@ -89,7 +90,7 @@ export default function HomePage() {
             </p>
           </Reveal>
 
-          <Reveal className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <Reveal className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <FeatureCard
               icon={Users}
               title="CRM"
@@ -104,6 +105,11 @@ export default function HomePage() {
               icon={Timer}
               title="Focus sessions"
               text="Use the built-in Pomodoro timer and ambient lofi music to enter deep work faster."
+            />
+            <FeatureCard
+              icon={NotebookText}
+              title="Notebook"
+              text="Capture ideas, meeting notes, and thoughts before they disappear."
             />
           </Reveal>
         </div>
@@ -122,7 +128,7 @@ export default function HomePage() {
             <Step
               number="1"
               title="Organize your world"
-              text="Bring together your clients, tasks, and schedule in one place."
+              text="Bring together your clients, notes, tasks, and schedule in one place."
             />
             <Step
               number="2"
@@ -154,9 +160,9 @@ export default function HomePage() {
             </p>
             <p className="text-ink-muted">
               It&apos;s a thoughtfully designed workspace that helps you stay
-              organized, focused, and present. A place where your clients,
-              schedule, and focus sessions live together — without overwhelming
-              you.
+              organized, focused, and present. A place where your notes,
+              clients, schedule, and focus sessions live together — without
+              overwhelming you.
             </p>
           </Reveal>
         </div>
@@ -168,7 +174,7 @@ export default function HomePage() {
           <Highlight
             icon={Boxes}
             title="One workspace"
-            text="Clients, calendar, and focus tools working together."
+            text="Notes, clients, calendar, and focus tools working together."
           />
           <Highlight
             icon={Palette}

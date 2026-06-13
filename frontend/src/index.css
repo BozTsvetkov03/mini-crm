@@ -145,6 +145,53 @@
   animation: vinyl-spin 9s linear infinite;
 }
 
+/* Notebook ruled paper. Rules are decorative — the textarea uses a matching
+   2rem line-height so text sits close to the lines without promising exact
+   alignment (which is fragile across mobile zoom / font scaling).
+   `background-attachment: local` keeps the rules under the text while scrolling. */
+.notebook-rules {
+  line-height: 2rem;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(2rem - 1px),
+    var(--line) calc(2rem - 1px),
+    var(--line) 2rem
+  );
+  background-attachment: local;
+}
+
+/* Faint terracotta margin line, drawn on the sheet so both title and body
+   share it. Decorative and pointer-transparent. */
+.notebook-sheet {
+  position: relative;
+}
+.notebook-sheet::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 3rem;
+  width: 1px;
+  background: color-mix(in oklab, var(--secondary) 45%, transparent);
+  pointer-events: none;
+}
+
+/* Gentle page-turn when switching pages — a soft fade + small slide, not a
+   flashy 3D flip. Replayed by keying the sheet on the active page id. */
+@keyframes page-turn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-turn {
+  animation: page-turn 0.32s ease-out;
+}
+
 .anim-rise {
   opacity: 0;
   animation: reveal-up 0.7s ease-out both;
@@ -190,6 +237,9 @@
     animation: none !important;
   }
   .vinyl-disc {
+    animation: none !important;
+  }
+  .page-turn {
     animation: none !important;
   }
 }
