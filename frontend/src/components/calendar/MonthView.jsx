@@ -20,12 +20,12 @@ function MonthView({ anchorDate, tasks, onDrillToDay }) {
   const today = new Date();
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
-      <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+    <div className="overflow-hidden rounded-2xl border border-line">
+      <div className="grid grid-cols-7 border-b border-line bg-background">
         {WEEKDAY_LABELS.map((label) => (
           <div
             key={label}
-            className="px-2 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400"
+            className="px-2 py-2 text-center text-xs font-semibold text-ink-muted"
           >
             {label}
           </div>
@@ -42,10 +42,10 @@ function MonthView({ anchorDate, tasks, onDrillToDay }) {
           return (
             <div
               key={day.toISOString()}
-              className={`min-h-[7rem] border-b border-r border-gray-100 p-1.5 dark:border-gray-800/70 ${
+              className={`min-h-[7rem] border-b border-r border-line p-1.5/70 ${
                 inMonth
-                  ? "bg-white dark:bg-gray-900"
-                  : "bg-gray-50/60 dark:bg-gray-950/40"
+                  ? "bg-surface"
+                  : "bg-background/60/40"
               }`}
             >
               <div className="mb-1 flex justify-end">
@@ -55,10 +55,10 @@ function MonthView({ anchorDate, tasks, onDrillToDay }) {
                   aria-label={`View ${day.toDateString()}`}
                   className={`flex h-6 w-6 items-center justify-center rounded-full text-xs transition hover:cursor-pointer ${
                     isToday
-                      ? "bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
+                      ? "bg-primary-strong font-semibold text-white hover:bg-primary-strong/85"
                       : inMonth
-                        ? "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                        : "text-gray-400 hover:bg-gray-100 dark:text-gray-600 dark:hover:bg-gray-800"
+                        ? "text-ink hover:bg-ink/5"
+                        : "text-ink-faint hover:bg-ink/5 dark:text-ink-muted"
                   }`}
                 >
                   {day.getDate()}
@@ -73,7 +73,7 @@ function MonthView({ anchorDate, tasks, onDrillToDay }) {
                   <button
                     type="button"
                     onClick={() => onDrillToDay(day)}
-                    className="w-full rounded px-1 text-left text-xs font-medium text-gray-500 transition hover:cursor-pointer hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                    className="w-full rounded px-1 text-left text-xs font-medium text-ink-muted transition hover:cursor-pointer hover:text-ink"
                   >
                     +{overflow} more
                   </button>

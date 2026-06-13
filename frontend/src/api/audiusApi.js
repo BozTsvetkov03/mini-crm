@@ -2,7 +2,7 @@
 // streaming apps (https://docs.audius.org). Plain fetch on purpose: the
 // axios instance carries our cookies/CSRF headers, which don't belong on
 // cross-origin requests.
-const APP_NAME = "crm-mini";
+const APP_NAME = "atelier";
 const FALLBACK_HOST = "https://api.audius.co";
 
 let hostPromise = null;

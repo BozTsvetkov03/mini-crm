@@ -35,28 +35,28 @@ function FocusPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10 transition-colors dark:bg-gray-950">
+    <main className="min-h-screen bg-background px-6 py-10 transition-colors">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Focus</h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <h1 className="text-3xl font-bold text-ink">Focus</h1>
+            <p className="mt-1 text-sm text-ink-muted">
               Pomodoro timer with a lofi radio. Press start, get things done.
             </p>
           </div>
 
           {stats && (
             <div className="flex gap-4 text-sm">
-              <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
-                <Flame size={16} className="text-emerald-600 dark:text-emerald-400" />
-                <span className="text-gray-700 dark:text-gray-300">
+              <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2">
+                <Flame size={16} className="text-primary-strong" />
+                <span className="text-ink">
                   Today: <strong>{stats.todayCount}</strong> session{stats.todayCount === 1 ? "" : "s"} ·{" "}
                   <strong>{stats.todayMinutes}</strong> min
                 </span>
               </div>
-              <div className="hidden items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 sm:flex dark:border-gray-800 dark:bg-gray-900">
-                <CalendarRange size={16} className="text-emerald-600 dark:text-emerald-400" />
-                <span className="text-gray-700 dark:text-gray-300">
+              <div className="hidden items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 sm:flex">
+                <CalendarRange size={16} className="text-primary-strong" />
+                <span className="text-ink">
                   7 days: <strong>{stats.weekCount}</strong> · <strong>{stats.weekMinutes}</strong> min
                 </span>
               </div>

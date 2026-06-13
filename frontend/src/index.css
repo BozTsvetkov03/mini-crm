@@ -3,6 +3,113 @@
 /* manual dark mode via .dark on <html> */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ---------------------------------------------------------------------------
+   Design tokens — the single source of truth for the palette.
+   Raw values live here as CSS vars that flip under .dark; Tailwind utilities
+   (bg-surface, text-ink, border-line…) are registered from them in the
+   @theme block below, so components never hardcode hex values or dark:
+   color variants.
+--------------------------------------------------------------------------- */
+:root {
+  --background: #f7f5f2; /* Warm Ivory */
+  --surface: #eeeae4; /* Soft Linen */
+  --field: #fbfaf8; /* inputs sit lighter than cards */
+
+  --primary: #7c9a92; /* Dusty Sage */
+  --primary-strong: #5f7c75; /* fills & link text: sage fails contrast on light */
+  --secondary: #c98a72; /* Muted Terracotta */
+  --accent: #334155; /* Deep Slate */
+  --success: #7a9b76; /* Moss Green */
+
+  /* Provisional — not part of the approved palette yet (danger/warning had
+     no decision); muted clay + ochre chosen to sit with the terracotta */
+  --danger: #b0584d;
+  --warning: #a87f2e;
+
+  --ink: #2c2c2c; /* Charcoal */
+  --ink-muted: #6e6862;
+  --ink-faint: #9a938b;
+
+  --line: #e2dcd3;
+  --line-strong: #d2cabe;
+  --ring: rgb(124 154 146 / 0.3);
+
+  --brand: #334155; /* "Atelier" wordmark — muted sage */
+}
+
+.dark {
+  --background: #171c26; /* Midnight Blue */
+  --surface: #232a36; /* Graphite */
+  --field: #1c2230;
+
+  --primary: #6ba89a; /* Muted Teal */
+  --primary-strong: #6ba89a; /* teal is luminous enough on dark as-is */
+  --secondary: #8d88b5; /* Lavender Gray */
+  --accent: #d68a7a; /* Soft Coral */
+  --success: #86ae8b; /* provisional: dark mode had no success color */
+
+  --danger: #d08376; /* provisional */
+  --warning: #d2ab62; /* provisional */
+
+  --ink: #f3f1ee; /* Warm White */
+  --ink-muted: #a8aebb;
+  --ink-faint: #767e8e;
+
+  --line: #2e3543;
+  --line-strong: #3b4454;
+  --ring: rgb(107 168 154 / 0.35);
+
+  /* #5E6B5F is too dark on Midnight Blue; warm off-white echoes the golden
+     dark-mode logo. Nudge toward gold if you want it warmer. */
+  --brand: #e7e2d9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-field: var(--field);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+}
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans Variable", "Inter Variable", ui-sans-serif,
+    system-ui, sans-serif;
+  /* "Atelier" wordmark only — UI text stays sans */
+  --font-brand: "Cormorant Garamond", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ink-faint);
+  }
+}
+
 /* One-shot entrance: fade + slide up. Used on mount (hero) and on scroll
    (Reveal). `both` fill mode keeps content hidden during animation-delay. */
 @keyframes reveal-up {
@@ -47,16 +154,16 @@
   animation: reveal-up 0.6s ease-out forwards;
 }
 
-/* Soft, slowly drifting emerald glow behind the hero. Purely decorative. */
+/* Soft, slowly drifting sage + terracotta glow behind the hero. Decorative. */
 .hero-aurora {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(50% 50% at 20% 25%, rgba(16, 185, 129, 0.22), transparent 70%),
-    radial-gradient(45% 45% at 80% 30%, rgba(13, 148, 136, 0.18), transparent 70%),
-    radial-gradient(55% 55% at 50% 80%, rgba(52, 211, 153, 0.16), transparent 70%);
+    radial-gradient(50% 50% at 20% 25%, rgba(124, 154, 146, 0.28), transparent 70%),
+    radial-gradient(45% 45% at 80% 30%, rgba(201, 138, 114, 0.20), transparent 70%),
+    radial-gradient(55% 55% at 50% 80%, rgba(122, 155, 118, 0.18), transparent 70%);
   background-size: 200% 200%;
   background-repeat: no-repeat;
   filter: blur(24px);
@@ -65,9 +172,9 @@
 
 .dark .hero-aurora {
   background:
-    radial-gradient(50% 50% at 20% 25%, rgba(16, 185, 129, 0.20), transparent 70%),
-    radial-gradient(45% 45% at 80% 30%, rgba(13, 148, 136, 0.16), transparent 70%),
-    radial-gradient(55% 55% at 50% 80%, rgba(5, 150, 105, 0.18), transparent 70%);
+    radial-gradient(50% 50% at 20% 25%, rgba(107, 168, 154, 0.22), transparent 70%),
+    radial-gradient(45% 45% at 80% 30%, rgba(214, 138, 122, 0.16), transparent 70%),
+    radial-gradient(55% 55% at 50% 80%, rgba(141, 136, 181, 0.16), transparent 70%);
   background-size: 200% 200%;
   background-repeat: no-repeat;
 }

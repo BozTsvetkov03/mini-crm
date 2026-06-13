@@ -52,7 +52,7 @@ export default function CalendarPage() {
   }, [range]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-150 transition-colors dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-background transition-colors">
       <div className="mx-auto w-[92%] pt-12 pb-16 lg:w-[85%]">
         <CalendarToolbar
           title={formatTitle(view, anchorDate)}
@@ -64,7 +64,7 @@ export default function CalendarPage() {
         />
 
         {error && (
-          <p className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
+          <p className="mb-4 rounded-xl bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
             {error}
           </p>
         )}

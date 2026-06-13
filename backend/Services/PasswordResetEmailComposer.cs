@@ -6,7 +6,7 @@ public static class PasswordResetEmailComposer
 {
     public static (string Subject, string Html) Compose(string userName, string resetUrl)
     {
-        var subject = "Reset your CRM Mini password";
+        var subject = "Reset your Atelier password";
 
         var html = $"""
             <!DOCTYPE html>
@@ -23,7 +23,7 @@ public static class PasswordResetEmailComposer
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:12px;">
                       <tr>
                         <td style="padding:32px 32px 36px;font-family:Arial,Helvetica,sans-serif;color:#111827;">
-                          <h1 style="margin:0 0 20px;font-size:24px;line-height:1.3;color:#059669;">CRM Mini</h1>
+                          <h1 style="margin:0 0 20px;font-size:24px;line-height:1.3;color:#5e6b5f;">Atelier</h1>
                           <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">Hi {Html(userName)}, we received a request to reset your password. Click the button below to choose a new one.</p>
                           <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px auto 0;">
                             <tr>

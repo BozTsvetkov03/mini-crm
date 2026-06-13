@@ -5,7 +5,7 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-gray-50 text-gray-900 transition-colors dark:bg-gray-950 dark:text-gray-100">
+    <div className="bg-background text-ink transition-colors">
       {/* Hero */}
       <section className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center overflow-hidden px-6 text-center">
         <div className="hero-aurora" aria-hidden="true" />
@@ -19,7 +19,7 @@ export default function HomePage() {
           </h1>
 
           <p
-            className="anim-rise mb-8 max-w-2xl text-lg text-gray-600 md:text-xl dark:text-gray-400"
+            className="anim-rise mb-8 max-w-2xl text-lg text-ink-muted md:text-xl"
             style={{ animationDelay: "0.1s" }}
           >
             A lightweight CRM to track customer interactions and stay organized.
@@ -28,7 +28,7 @@ export default function HomePage() {
           <button
             onClick={() => navigate("/register")}
             style={{ animationDelay: "0.2s" }}
-            className="anim-rise rounded-xl bg-emerald-600 px-8 py-3 text-lg font-semibold text-white transition hover:scale-105 hover:cursor-pointer hover:bg-emerald-400 dark:hover:bg-emerald-500"
+            className="anim-rise rounded-xl bg-primary-strong px-8 py-3 text-lg font-semibold text-white transition hover:scale-105 hover:cursor-pointer hover:bg-primary-strong/85"
           >
             Get Started
           </button>
@@ -51,8 +51,8 @@ export default function HomePage() {
             <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">
               How it works
             </h2>
-            <p className="mx-auto mb-14 max-w-2xl text-center text-gray-600 dark:text-gray-400">
-              Get set up in minutes. CRM-mini keeps the workflow short so you can
+            <p className="mx-auto mb-14 max-w-2xl text-center text-ink-muted">
+              Get set up in minutes. Atelier keeps the workflow short so you can
               spend your time on customers, not on configuration.
             </p>
           </Reveal>
@@ -78,14 +78,14 @@ export default function HomePage() {
       </section>
 
       {/* Value proposition */}
-      <section className="bg-white px-6 py-24 transition-colors dark:bg-gray-900">
+      <section className="bg-surface px-6 py-24 transition-colors">
         <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-12 md:grid-cols-2">
           <Reveal>
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
               Built for people who just want to get things done
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Most CRMs drown you in features you'll never use. CRM-mini is
+            <p className="text-ink-muted">
+              Most CRMs drown you in features you'll never use. Atelier is
               deliberately small: a fast, focused tool that does the essentials
               well. No steep learning curve, no clutter — just a clean way to keep
               your customer relationships moving forward.
@@ -112,17 +112,17 @@ export default function HomePage() {
       {/* Closing CTA */}
       <section className="px-6 py-24">
         <Reveal>
-          <div className="mx-auto max-w-3xl rounded-3xl bg-emerald-600 px-8 py-14 text-center shadow-sm dark:bg-emerald-700">
+          <div className="mx-auto max-w-3xl rounded-3xl bg-primary-strong px-8 py-14 text-center shadow-sm">
             <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
               Ready to get organized?
             </h2>
-            <p className="mx-auto mb-8 max-w-xl text-emerald-50">
+            <p className="mx-auto mb-8 max-w-xl text-white/90">
               Create your free account and start managing your customers in
               minutes.
             </p>
             <button
               onClick={() => navigate("/register")}
-              className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-emerald-700 transition hover:scale-105 hover:cursor-pointer hover:bg-emerald-50"
+              className="rounded-xl bg-background px-8 py-3 text-lg font-semibold text-primary-strong transition hover:scale-105 hover:cursor-pointer hover:bg-background/85"
             >
               Get Started
             </button>
@@ -135,32 +135,32 @@ export default function HomePage() {
 
 function Feature({ title, text }) {
   return (
-    <div className="rounded-2xl border border-emerald-200/50 bg-emerald-100/30 p-6 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md dark:border-emerald-800/40 dark:bg-emerald-900/20 dark:hover:border-emerald-700">
+    <div className="rounded-2xl border border-primary/30 bg-primary/10 p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-md">
       <h3 className="mb-2 text-xl font-semibold">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400">{text}</p>
+      <p className="text-ink-muted">{text}</p>
     </div>
   );
 }
 
 function Step({ number, title, text }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-emerald-700">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+    <div className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-md">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-lg font-bold text-primary-strong">
         {number}
       </div>
       <h3 className="mb-2 text-xl font-semibold">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400">{text}</p>
+      <p className="text-ink-muted">{text}</p>
     </div>
   );
 }
 
 function Benefit({ title, text }) {
   return (
-    <div className="rounded-2xl border border-gray-200 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md dark:border-gray-800 dark:hover:border-emerald-700">
-      <h3 className="mb-1 font-semibold text-emerald-700 dark:text-emerald-400">
+    <div className="rounded-2xl border border-line p-5 transition hover:-translate-y-1 hover:border-primary hover:shadow-md">
+      <h3 className="mb-1 font-semibold text-primary-strong">
         {title}
       </h3>
-      <p className="text-gray-600 dark:text-gray-400">{text}</p>
+      <p className="text-ink-muted">{text}</p>
     </div>
   );
 }

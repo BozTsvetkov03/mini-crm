@@ -135,39 +135,39 @@ function ProfilePage() {
   const isDark = theme === "dark";
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-gray-50 px-6 py-10 transition-colors dark:bg-gray-950">
+    <main className="min-h-[calc(100vh-4rem)] bg-background px-6 py-10 transition-colors">
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Profile</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-ink">Profile</h1>
+          <p className="mt-1 text-sm text-ink-muted">
             Manage your account settings and preferences.
           </p>
         </div>
 
         {/* Account card */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+        <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
           <div className="mb-4 flex items-center gap-2">
-            <User size={18} className="text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Account</h2>
+            <User size={18} className="text-primary-strong" />
+            <h2 className="text-lg font-semibold text-ink">Account</h2>
           </div>
 
           <form onSubmit={handleSaveName} className="space-y-4">
             {/* Email — read-only */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-ink">
                 Email
               </label>
               <input
                 type="email"
                 value={user?.email ?? ""}
                 readOnly
-                className="w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-gray-500 outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500"
+                className="w-full rounded-xl border border-line bg-line px-3 py-2 text-ink-muted outline-none"
               />
             </div>
 
             {/* Name — editable */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-ink">
                 Name
               </label>
               <input
@@ -176,15 +176,15 @@ function ProfilePage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your display name"
                 required
-                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
               />
             </div>
 
             {saveError && (
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">{saveError}</p>
+              <p className="text-sm font-medium text-danger">{saveError}</p>
             )}
             {saveSuccess && (
-              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <p className="text-sm font-medium text-primary-strong">
                 Name updated successfully.
               </p>
             )}
@@ -192,7 +192,7 @@ function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-xl bg-emerald-600 px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-primary-strong px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-primary-strong/85 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save"}
             </button>
@@ -200,14 +200,14 @@ function ProfilePage() {
         </section>
 
         {/* Security card */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+        <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
           <div className="mb-4 flex items-center gap-2">
-            <Lock size={18} className="text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Security</h2>
+            <Lock size={18} className="text-primary-strong" />
+            <h2 className="text-lg font-semibold text-ink">Security</h2>
           </div>
 
           {!hasPassword && (
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mb-4 text-sm text-ink-muted">
               You signed in with Google and don&apos;t have a password yet.
               Setting one lets you log in with email and password too.
             </p>
@@ -216,7 +216,7 @@ function ProfilePage() {
           <form onSubmit={handleSavePassword} className="space-y-4">
             {hasPassword && (
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="mb-1 block text-sm font-medium text-ink">
                   Current password
                 </label>
                 <input
@@ -226,13 +226,13 @@ function ProfilePage() {
                   maxLength={128}
                   required
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
                 />
               </div>
             )}
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-ink">
                 New password
               </label>
               <input
@@ -242,12 +242,12 @@ function ProfilePage() {
                 maxLength={128}
                 required
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-ink">
                 Confirm new password
               </label>
               <input
@@ -257,15 +257,15 @@ function ProfilePage() {
                 maxLength={128}
                 required
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
               />
             </div>
 
             {pwError && (
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">{pwError}</p>
+              <p className="text-sm font-medium text-danger">{pwError}</p>
             )}
             {pwSuccess && (
-              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <p className="text-sm font-medium text-primary-strong">
                 {pwSuccess}
               </p>
             )}
@@ -273,7 +273,7 @@ function ProfilePage() {
             <button
               type="submit"
               disabled={pwSaving}
-              className="rounded-xl bg-emerald-600 px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-primary-strong px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-primary-strong/85 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pwSaving
                 ? "Saving…"
@@ -285,16 +285,16 @@ function ProfilePage() {
         </section>
 
         {/* Preferences card */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+        <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
           <div className="mb-4 flex items-center gap-2">
-            <Palette size={18} className="text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Preferences</h2>
+            <Palette size={18} className="text-primary-strong" />
+            <h2 className="text-lg font-semibold text-ink">Preferences</h2>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Theme</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-sm font-medium text-ink">Theme</p>
+              <p className="text-xs text-ink-muted">
                 {isDark ? "Dark mode is on" : "Light mode is on"}
               </p>
             </div>
@@ -303,22 +303,22 @@ function ProfilePage() {
         </section>
 
         {/* Notifications card */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+        <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
           <div className="mb-4 flex items-center gap-2">
-            <Bell size={18} className="text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notifications</h2>
+            <Bell size={18} className="text-primary-strong" />
+            <h2 className="text-lg font-semibold text-ink">Notifications</h2>
           </div>
 
           {reminders === null ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-ink-muted">
               {remError || "Loading…"}
             </p>
           ) : (
             <form onSubmit={handleSaveReminders} className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Email reminders</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-sm font-medium text-ink">Email reminders</p>
+                  <p className="text-xs text-ink-muted">
                     A daily digest of tasks that are due soon or overdue.
                   </p>
                 </div>
@@ -328,12 +328,12 @@ function ProfilePage() {
                   aria-checked={reminders.enabled}
                   aria-label={reminders.enabled ? "Disable email reminders" : "Enable email reminders"}
                   onClick={handleToggleReminders}
-                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-300 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-300 dark:focus:ring-emerald-800 ${
-                    reminders.enabled ? "bg-emerald-600" : "bg-gray-300 dark:bg-gray-700"
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-300 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring ${
+                    reminders.enabled ? "bg-primary-strong" : "bg-line-strong"
                   }`}
                 >
                   <span
-                    className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                    className={`inline-block h-6 w-6 transform rounded-full bg-surface shadow-md transition-transform duration-300 ${
                       reminders.enabled ? "translate-x-7" : "translate-x-1"
                     }`}
                   />
@@ -341,9 +341,9 @@ function ProfilePage() {
               </div>
 
               {reminders.enabled && (
-                <div className="space-y-4 border-t border-gray-100 pt-4 dark:border-gray-800">
+                <div className="space-y-4 border-t border-line pt-4">
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="mb-1 block text-sm font-medium text-ink">
                       Remind me about tasks due within
                     </label>
                     <div className="flex items-center gap-2">
@@ -354,20 +354,20 @@ function ProfilePage() {
                         value={reminders.days}
                         onChange={(e) => setReminders((r) => ({ ...r, days: e.target.value }))}
                         required
-                        className="w-24 rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                        className="w-24 rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
                       />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
+                      <span className="text-sm text-ink-muted">days</span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="mb-1 block text-sm font-medium text-ink">
                       Send the digest after
                     </label>
                     <select
                       value={reminders.hour}
                       onChange={(e) => setReminders((r) => ({ ...r, hour: e.target.value }))}
-                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                      className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
                     >
                       {HOURS.map((h) => (
                         <option key={h} value={h}>
@@ -375,19 +375,19 @@ function ProfilePage() {
                         </option>
                       ))}
                     </select>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-xs text-ink-muted">
                       Sent once a day, within about half an hour of this time.
                     </p>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="mb-1 block text-sm font-medium text-ink">
                       Time zone
                     </label>
                     <select
                       value={reminders.timeZone}
                       onChange={(e) => setReminders((r) => ({ ...r, timeZone: e.target.value }))}
-                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-emerald-900"
+                      className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
                     >
                       {!TIME_ZONES.includes(reminders.timeZone) && (
                         <option value={reminders.timeZone}>{reminders.timeZone}</option>
@@ -403,10 +403,10 @@ function ProfilePage() {
               )}
 
               {remError && (
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">{remError}</p>
+                <p className="text-sm font-medium text-danger">{remError}</p>
               )}
               {remSuccess && (
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                <p className="text-sm font-medium text-primary-strong">
                   Notification settings saved.
                 </p>
               )}
@@ -414,7 +414,7 @@ function ProfilePage() {
               <button
                 type="submit"
                 disabled={remSaving}
-                className="rounded-xl bg-emerald-600 px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-xl bg-primary-strong px-5 py-2 font-medium text-white transition hover:cursor-pointer hover:bg-primary-strong/85 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {remSaving ? "Saving…" : "Save"}
               </button>

@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
-import { Boxes, LogOut, Menu, Moon, Sun, UserRound } from "lucide-react";
+import { LogOut, Menu, Moon, Sun, UserRound } from "lucide-react";
 import { WORKSPACE_NAV } from "./workspaceNav";
+import logo from "../../assets/new_logo.png";
+import logoDark from "../../assets/new_logo_dark.png";
 
 // Shared by rail and bottom bar so active/hover styling stays in one place
 const railLinkClass = ({ isActive }) =>
   `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
     isActive
-      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+      ? "bg-primary/10 text-primary-strong"
+      : "text-ink-muted hover:bg-ink/5 hover:text-ink"
   }`;
 
 // Labels are always in the DOM; the rail's overflow-hidden clips them while
@@ -21,8 +23,8 @@ const railLabelClass =
 const mobileTabClass = (isActive) =>
   `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
     isActive
-      ? "text-emerald-600 dark:text-emerald-400"
-      : "text-gray-500 dark:text-gray-400"
+      ? "text-primary-strong"
+      : "text-ink-muted"
   }`;
 
 function WorkspaceLayout() {
@@ -51,16 +53,20 @@ function WorkspaceLayout() {
     location.pathname.startsWith("/profile");
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-colors dark:bg-gray-950">
+    <div className="min-h-screen bg-background transition-colors">
       {/* Desktop: fixed icon rail, expands on hover without shifting content */}
-      <aside className="group fixed inset-y-0 left-0 z-40 hidden w-16 flex-col overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 hover:w-56 focus-within:w-56 md:flex dark:border-gray-800 dark:bg-gray-900">
+      <aside className="group fixed inset-y-0 left-0 z-40 hidden w-16 flex-col overflow-hidden border-r border-line bg-surface transition-[width] duration-200 hover:w-56 focus-within:w-56 md:flex">
         <NavLink
           to="/app"
-          className="flex items-center gap-3 px-[1.375rem] pt-5 pb-4 text-gray-900 dark:text-gray-100"
+          className="flex items-center gap-3 px-[1.125rem] pt-5 pb-4 text-ink"
         >
-          <Boxes size={24} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
-          <span className={`${railLabelClass} text-base font-bold tracking-tight`}>
-            CRM Mini
+          <img
+            className="h-7 w-7 shrink-0 object-contain"
+            src={isDark ? logoDark : logo}
+            alt=""
+          />
+          <span className={`${railLabelClass} font-brand text-2xl font-semibold italic text-brand`}>
+            Atelier
           </span>
         </NavLink>
 
@@ -73,7 +79,7 @@ function WorkspaceLayout() {
           ))}
         </nav>
 
-        <div className="space-y-1 border-t border-gray-200 px-2 py-3 dark:border-gray-800">
+        <div className="space-y-1 border-t border-line px-2 py-3">
           <NavLink to="/profile" className={railLinkClass} title="Profile">
             <UserRound size={24} className="shrink-0" />
             <span className={`${railLabelClass} max-w-[9rem] truncate`}>
@@ -85,7 +91,7 @@ function WorkspaceLayout() {
             type="button"
             onClick={toggleTheme}
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:cursor-pointer hover:bg-ink/5 hover:text-ink"
           >
             {isDark ? <Sun size={24} className="shrink-0" /> : <Moon size={24} className="shrink-0" />}
             <span className={railLabelClass}>{isDark ? "Light mode" : "Dark mode"}</span>
@@ -95,7 +101,7 @@ function WorkspaceLayout() {
             type="button"
             onClick={handleLogout}
             title="Log out"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 transition-colors hover:cursor-pointer hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-danger transition-colors hover:cursor-pointer hover:bg-danger/10"
           >
             <LogOut size={24} className="shrink-0" />
             <span className={railLabelClass}>Log out</span>
@@ -114,7 +120,7 @@ function WorkspaceLayout() {
       )}
 
       {moreOpen && (
-        <div className="fixed inset-x-0 bottom-14 z-50 rounded-t-2xl border-t border-gray-200 bg-white p-2 pb-3 shadow-2xl md:hidden dark:border-gray-800 dark:bg-gray-900">
+        <div className="fixed inset-x-0 bottom-14 z-50 rounded-t-2xl border-t border-line bg-surface p-2 pb-3 shadow-2xl md:hidden">
           {mobileSecondary.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -122,8 +128,8 @@ function WorkspaceLayout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
                   isActive
-                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                    : "text-gray-700 dark:text-gray-200"
+                    ? "bg-primary/10 text-primary-strong"
+                    : "text-ink"
                 }`
               }
             >
@@ -137,8 +143,8 @@ function WorkspaceLayout() {
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
                 isActive
-                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                  : "text-gray-700 dark:text-gray-200"
+                  ? "bg-primary/10 text-primary-strong"
+                  : "text-ink"
               }`
             }
           >
@@ -149,18 +155,18 @@ function WorkspaceLayout() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-ink"
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
             {isDark ? "Light mode" : "Dark mode"}
           </button>
 
-          <hr className="my-1 border-gray-100 dark:border-gray-800" />
+          <hr className="my-1 border-line" />
 
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-danger"
           >
             <LogOut size={18} />
             Log out
@@ -168,7 +174,7 @@ function WorkspaceLayout() {
         </div>
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex h-14 border-t border-gray-200 bg-white md:hidden dark:border-gray-800 dark:bg-gray-900">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex h-14 border-t border-line bg-surface md:hidden">
         {mobilePrimary.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}

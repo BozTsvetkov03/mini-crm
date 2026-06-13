@@ -5,11 +5,11 @@ function NotFound() {
     const navigate = useNavigate('');
 
     return (
-        <div className="flex h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center transition-colors dark:bg-gray-950">
+        <div className="flex h-screen flex-col items-center justify-center bg-background px-4 text-center transition-colors">
 
-            <h1 className="text-6xl font-bold text-emerald-600 dark:text-emerald-400">404</h1>
+            <h1 className="text-6xl font-bold text-primary-strong">404</h1>
 
-            <h2 className="mt-4 max-w-md text-lg text-gray-600 dark:text-gray-400">
+            <h2 className="mt-4 max-w-md text-lg text-ink-muted">
                 We couldn't find the page you were looking for.
             </h2>
 
@@ -19,7 +19,7 @@ function NotFound() {
                 alt="Not found"
             />
 
-            <button onClick={() => navigate('/')} className="mt-8 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-400 transition">
+            <button onClick={() => navigate('/')} className="mt-8 px-6 py-3 bg-primary-strong text-white rounded-lg hover:bg-primary transition">
                 Go Home
             </button>
         </div>

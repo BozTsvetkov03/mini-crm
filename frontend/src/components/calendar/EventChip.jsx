@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { taskStatus, formatTime } from "../../utils/calendar";
 
 const STATUS_STYLES = {
-  done: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500",
-  overdue: "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300",
+  done: "bg-line text-ink-muted",
+  overdue: "bg-danger/15 text-danger",
   upcoming:
-    "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
+    "bg-primary/15 text-primary-strong",
 };
 
 /**

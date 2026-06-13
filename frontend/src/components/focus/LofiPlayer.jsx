@@ -83,7 +83,7 @@ function LofiPlayer() {
   const prev = () => playTrack((index - 1 + queue.length) % queue.length);
 
   return (
-    <section className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+    <section className="flex flex-col items-center rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
       <audio ref={audioRef} preload="none" onEnded={next} onError={() => playing && handleTrackError(index)} />
 
       {/* Vinyl: artwork disk that only spins while music plays */}
@@ -95,30 +95,30 @@ function LofiPlayer() {
           {track?.artwork ? (
             <img src={track.artwork} alt="" className="h-full w-full object-cover" draggable="false" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gray-800 text-gray-500">
+            <div className="flex h-full w-full items-center justify-center bg-gray-800 text-ink-muted">
               <Disc3 size={56} />
             </div>
           )}
         </div>
         {/* center label + spindle hole */}
-        <div className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-gray-900 bg-emerald-600 dark:border-gray-950" />
-        <div className="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gray-900 dark:bg-gray-950" />
+        <div className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-gray-900 bg-primary-strong dark:border-gray-950" />
+        <div className="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gray-900" />
       </div>
 
       <div className="mt-5 min-h-[3.25rem] text-center">
         {loadError ? (
-          <p className="text-sm font-medium text-red-600 dark:text-red-400">{loadError}</p>
+          <p className="text-sm font-medium text-danger">{loadError}</p>
         ) : track ? (
           <>
-            <p className="max-w-[16rem] truncate font-semibold text-gray-900 dark:text-gray-100">
+            <p className="max-w-[16rem] truncate font-semibold text-ink">
               {track.title}
             </p>
-            <p className="max-w-[16rem] truncate text-sm text-gray-500 dark:text-gray-400">
+            <p className="max-w-[16rem] truncate text-sm text-ink-muted">
               {track.artist}
             </p>
           </>
         ) : (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Tuning the radio…</p>
+          <p className="text-sm text-ink-muted">Tuning the radio…</p>
         )}
       </div>
 
@@ -128,7 +128,7 @@ function LofiPlayer() {
           onClick={prev}
           disabled={!track}
           title="Previous track"
-          className="rounded-xl border border-gray-300 p-2.5 text-gray-700 transition hover:cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="rounded-xl border border-line-strong p-2.5 text-ink transition hover:cursor-pointer hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <SkipBack size={18} />
         </button>
@@ -137,7 +137,7 @@ function LofiPlayer() {
           onClick={togglePlay}
           disabled={!track}
           title={playing ? "Pause" : "Play"}
-          className="rounded-full bg-emerald-600 p-4 text-white transition hover:cursor-pointer hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-full bg-primary-strong p-4 text-white transition hover:cursor-pointer hover:bg-primary-strong/85 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {playing ? <Pause size={22} /> : <Play size={22} />}
         </button>
@@ -146,13 +146,13 @@ function LofiPlayer() {
           onClick={next}
           disabled={!track}
           title="Next track"
-          className="rounded-xl border border-gray-300 p-2.5 text-gray-700 transition hover:cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="rounded-xl border border-line-strong p-2.5 text-ink transition hover:cursor-pointer hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <SkipForward size={18} />
         </button>
       </div>
 
-      <div className="mt-4 flex w-full max-w-[14rem] items-center gap-2 text-gray-500 dark:text-gray-400">
+      <div className="mt-4 flex w-full max-w-[14rem] items-center gap-2 text-ink-muted">
         <Volume2 size={16} />
         <input
           type="range"
@@ -162,7 +162,7 @@ function LofiPlayer() {
           value={volume}
           onChange={(e) => setVolume(Number(e.target.value))}
           aria-label="Volume"
-          className="w-full accent-emerald-600 hover:cursor-pointer"
+          className="w-full accent-primary hover:cursor-pointer"
         />
       </div>
 
@@ -171,7 +171,7 @@ function LofiPlayer() {
           href={track.permalink}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 text-xs text-gray-400 transition hover:text-emerald-600 dark:text-gray-500 dark:hover:text-emerald-400"
+          className="mt-4 text-xs text-ink-faint transition hover:text-primary-strong"
         >
           Streaming free music from Audius ↗
         </a>

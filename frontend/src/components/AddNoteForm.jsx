@@ -33,17 +33,17 @@ function AddNoteForm({ selectedCustomer, onNoteCreated }) {
   };
 
   return (
-    <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/30">
-      <h3 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-100">Add Note</h3>
+    <div className="mb-8 rounded-2xl border border-warning/30 bg-warning/10 p-5">
+      <h3 className="mb-5 text-lg font-semibold text-ink">Add Note</h3>
 
       {!selectedCustomer ? (
-        <p className="text-sm text-gray-600 py-6 text-center dark:text-gray-400">
+        <p className="text-sm text-ink-muted py-6 text-center">
           Select a customer to add a note.
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-2 block text-sm font-medium text-ink">
               Content
             </label>
             <textarea
@@ -52,21 +52,21 @@ function AddNoteForm({ selectedCustomer, onNoteCreated }) {
               maxLength={500}
               rows={3}
               placeholder="Called customer to discuss renewal..."
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-100 resize-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-amber-900"
+              className="w-full rounded-xl border border-line-strong bg-field px-3 py-2 text-ink outline-none transition focus:border-warning focus:ring-2 focus:ring-ring resize-none"
             />
-            <div className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-1 text-right text-xs text-ink-muted">
               {content.length}/500
             </div>
           </div>
 
           {error && (
-            <p className="text-sm font-medium text-red-600">{error}</p>
+            <p className="text-sm font-medium text-danger">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-xl bg-amber-600 px-4 py-2 font-medium text-white transition hover:bg-amber-700 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-warning px-4 py-2 font-medium text-white transition hover:bg-warning/85 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? "Adding..." : "Add Note"}
           </button>

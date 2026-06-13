@@ -42,11 +42,11 @@ function Customers({
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-md transition-colors dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-2xl border border-line bg-surface p-6 shadow-md transition-colors">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-xl font-semibold text-ink">
           Customers{" "}
-          <span className="text-base font-normal text-gray-400 dark:text-gray-500">
+          <span className="text-base font-normal text-ink-faint">
             ({customers.length}
             {typeof totalCustomersCount === "number" &&
             totalCustomersCount !== customers.length
@@ -56,7 +56,7 @@ function Customers({
           </span>
         </h2>
 
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-sm text-ink-muted">
           Search by name, email, country, or company.
         </p>
       </div>
@@ -67,7 +67,7 @@ function Customers({
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search customers..."
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-emerald-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
+          className="w-full rounded-xl border border-line-strong bg-field px-4 py-2.5 text-ink outline-none transition focus:border-primary"
         />
       </div>
 
@@ -80,14 +80,14 @@ function Customers({
       )}
 
       {!loading && error && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
-          <p className="font-medium text-red-600 dark:text-red-400">{error}</p>
+        <div className="mt-6 rounded-xl border border-danger/30 bg-danger/10 p-4">
+          <p className="font-medium text-danger">{error}</p>
         </div>
       )}
 
       {showEmptyState && (
         <div className="py-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-ink-muted">
             No customers found.
             {searchTerm.trim()
               ? " Try a different search."
@@ -108,19 +108,19 @@ function Customers({
                   onClick={() => onSelectCustomer(customer)}
                   className={`cursor-pointer rounded-xl border p-4 text-left transition ${
                     isSelected
-                      ? "border-emerald-300 bg-emerald-50 ring-2 ring-emerald-200 dark:border-emerald-700 dark:bg-emerald-950/40 dark:ring-emerald-800"
-                      : "border-gray-200 bg-white hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
+                      ? "border-primary bg-primary/10 ring-2 ring-ring"
+                      : "border-line bg-surface hover:border-line-strong"
                   }`}
                 >
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">{customer.name}</p>
-                  <p className="mt-1 break-all text-sm text-gray-600 dark:text-gray-400">
+                  <p className="font-semibold text-ink">{customer.name}</p>
+                  <p className="mt-1 break-all text-sm text-ink-muted">
                     {customer.email}
                   </p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-sm text-ink-muted">
                     {customer.country}
                   </p>
                   {customer.company && (
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-sm text-ink-muted">
                       {customer.company}
                     </p>
                   )}
@@ -131,7 +131,7 @@ function Customers({
                         e.stopPropagation();
                         setEditingCustomer(customer);
                       }}
-                      className="rounded-xl p-2 text-blue-600 transition hover:bg-blue-50 hover:cursor-pointer"
+                      className="rounded-xl p-2 text-secondary transition hover:bg-secondary/15 hover:cursor-pointer"
                       aria-label={`Edit ${customer.name}`}
                       title="Edit"
                     >
@@ -139,7 +139,7 @@ function Customers({
                     </button>
                     <button
                           onClick={(e) => handleDeleteCustomer(e, customer)}
-                          className="rounded-xl p-2 text-red-600 transition hover:bg-red-200 hover:cursor-pointer"
+                          className="rounded-xl p-2 text-danger transition hover:bg-danger/15 hover:cursor-pointer"
                         >
                           <Trash2 size={18}/>
                     </button>
@@ -149,9 +149,9 @@ function Customers({
             })}
           </div>
 
-          <div className="mt-6 hidden overflow-x-auto rounded-xl border border-gray-200 md:block dark:border-gray-800">
-            <table className="w-full border-collapse text-gray-900 dark:text-gray-200">
-              <thead className="bg-gray-100 dark:bg-gray-800">
+          <div className="mt-6 hidden overflow-x-auto rounded-xl border border-line md:block">
+            <table className="w-full border-collapse text-ink">
+              <thead className="bg-line">
                 <tr>
                   <th className="px-4 py-3 text-left">Name</th>
                   <th className="px-4 py-3 text-left">Email</th>
@@ -169,21 +169,21 @@ function Customers({
                     <tr
                       key={customer.id}
                       onClick={() => onSelectCustomer(customer)}
-                      className={`cursor-pointer border-t transition-colors dark:border-gray-800 ${
-                        isSelected ? "bg-emerald-50 dark:bg-emerald-950/40" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className={`cursor-pointer border-t transition-colors ${
+                        isSelected ? "bg-primary/10" : "hover:bg-ink/5"
                       }`}
                     >
                       <td className="px-4 py-3">{customer.name}</td>
                       <td className="break-all px-4 py-3">{customer.email}</td>
                       <td className="px-4 py-3">{customer.country}</td>
-                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{customer.company || "—"}</td>
+                      <td className="px-4 py-3 text-ink-muted">{customer.company || "—"}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingCustomer(customer);
                           }}
-                          className="rounded-xl p-2 text-blue-600 transition hover:bg-blue-50 hover:cursor-pointer"
+                          className="rounded-xl p-2 text-secondary transition hover:bg-secondary/15 hover:cursor-pointer"
                           aria-label={`Edit ${customer.name}`}
                           title="Edit"
                         >
@@ -191,7 +191,7 @@ function Customers({
                     </button>
                         <button
                           onClick={(e) => handleDeleteCustomer(e, customer)}
-                          className="rounded-xl p-2 text-red-600 transition hover:bg-red-50 hover:cursor-pointer"
+                          className="rounded-xl p-2 text-danger transition hover:bg-danger/10 hover:cursor-pointer"
                         >
                           <Trash2 size={18}/>
                         </button>
@@ -209,7 +209,7 @@ function Customers({
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowAll(true)}
-            className="rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+            className="rounded-xl border border-line-strong px-4 py-2 text-sm text-ink transition hover:bg-ink/5"
           >
             Show all ({customers.length})
           </button>

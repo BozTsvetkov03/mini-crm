@@ -72,7 +72,7 @@ function PomodoroTimer({ onFocusComplete }) {
   const notify = (title, body) => {
     try {
       if (window.Notification?.permission === "granted") {
-        new Notification(title, { body, icon: "/favicon.ico" });
+        new Notification(title, { body, icon: "/favicon.png" });
       }
     } catch {
       // notifications are best-effort
@@ -165,10 +165,10 @@ function PomodoroTimer({ onFocusComplete }) {
   // Countdown in the tab title while running
   useEffect(() => {
     if (running) {
-      document.title = `${formatTime(remainingMs / 1000)} · ${PHASE_LABELS[phase]} — CRM Mini`;
+      document.title = `${formatTime(remainingMs / 1000)} · ${PHASE_LABELS[phase]} — Atelier`;
     }
     return () => {
-      document.title = "CRM mini";
+      document.title = "Atelier";
     };
   }, [running, remainingMs, phase]);
 
@@ -180,15 +180,15 @@ function PomodoroTimer({ onFocusComplete }) {
   const phaseTabClass = (p) =>
     `rounded-xl px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer ${
       phase === p
-        ? "bg-emerald-600 text-white"
-        : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+        ? "bg-primary-strong text-white"
+        : "text-ink-muted hover:bg-ink/5"
     }`;
 
   const selectClass =
-    "rounded-lg border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 outline-none transition focus:border-emerald-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100";
+    "rounded-lg border border-line-strong bg-field px-2 py-1 text-sm text-ink outline-none transition focus:border-primary";
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-gray-800 dark:bg-gray-900">
+    <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-colors">
       <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
         {Object.values(PHASES).map((p) => (
           <button key={p} type="button" onClick={() => switchPhase(p)} className={phaseTabClass(p)}>
@@ -198,7 +198,7 @@ function PomodoroTimer({ onFocusComplete }) {
       </div>
 
       <p
-        className="text-center font-bold tabular-nums text-7xl tracking-tight text-gray-900 dark:text-gray-100"
+        className="text-center font-bold tabular-nums text-7xl tracking-tight text-ink"
         aria-live="off"
       >
         {formatTime(seconds)}
@@ -210,7 +210,7 @@ function PomodoroTimer({ onFocusComplete }) {
           <span
             key={i}
             className={`h-2.5 w-2.5 rounded-full transition-colors ${
-              i < cycleProgress ? "bg-emerald-500" : "bg-gray-200 dark:bg-gray-700"
+              i < cycleProgress ? "bg-primary" : "bg-line"
             }`}
           />
         ))}
@@ -221,7 +221,7 @@ function PomodoroTimer({ onFocusComplete }) {
           <button
             type="button"
             onClick={pause}
-            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-8 py-3 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700"
+            className="flex items-center gap-2 rounded-xl bg-primary-strong px-8 py-3 font-medium text-white transition hover:cursor-pointer hover:bg-primary-strong/85"
           >
             <Pause size={18} /> Pause
           </button>
@@ -229,7 +229,7 @@ function PomodoroTimer({ onFocusComplete }) {
           <button
             type="button"
             onClick={start}
-            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-8 py-3 font-medium text-white transition hover:cursor-pointer hover:bg-emerald-700"
+            className="flex items-center gap-2 rounded-xl bg-primary-strong px-8 py-3 font-medium text-white transition hover:cursor-pointer hover:bg-primary-strong/85"
           >
             <Play size={18} /> Start
           </button>
@@ -238,15 +238,15 @@ function PomodoroTimer({ onFocusComplete }) {
           type="button"
           onClick={reset}
           title="Reset timer"
-          className="flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 font-medium text-gray-700 transition hover:cursor-pointer hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="flex items-center gap-2 rounded-xl border border-line-strong px-4 py-3 font-medium text-ink transition hover:cursor-pointer hover:bg-ink/5"
         >
           <RotateCcw size={18} />
         </button>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-gray-100 pt-4 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-line pt-4 text-sm text-ink-muted">
         <span className="flex items-center gap-1.5">
-          <TimerReset size={15} className="text-emerald-600 dark:text-emerald-400" />
+          <TimerReset size={15} className="text-primary-strong" />
           Durations:
         </span>
         <label className="flex items-center gap-1.5">
